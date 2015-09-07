@@ -2,7 +2,7 @@
     'use strict';
 
     // Needs to be defined like this so that the grunt task can update it
-    var version = '0.5.7';
+    var version = '1.0.1';
 
     // Crazyness to get a strict mode compliant reference to the global object
     var global = null;
@@ -1804,7 +1804,7 @@
 }(d3, fc));
 
 /* globals computeLayout */
-(function(d3, fc, cssLayout) {
+(function(d3, fc, computeLayout) {
     'use strict';
 
 
@@ -1881,13 +1881,7 @@
             return {
                 style: parseStyle(el.getAttribute('layout-css')),
                 children: getChildNodes(el),
-                element: el,
-                layout: {
-                    width: undefined,
-                    height: undefined,
-                    top: 0,
-                    left: 0
-                }
+                element: el
             };
         }
 
@@ -1919,7 +1913,7 @@
                 layoutNodes.style.height = height !== -1 ? height : dimensions.height;
 
                 // use the Facebook CSS goodness
-                cssLayout.computeLayout(layoutNodes);
+                computeLayout(layoutNodes);
 
                 // apply the resultant layout
                 applyLayout(layoutNodes);
@@ -4412,8 +4406,14 @@
 
             // enter
             // when container is a transition, entering elements fade in (from transparent to opaque)
+            // N.B. insert() is used to create new elements, rather than append(). insert() behaves in a special manner
+            // on enter selections - entering elements will be inserted immediately before the next following sibling
+            // in the update selection, if any.
+            // This helps order the elements in an order consistent with the data, but doesn't guarantee the ordering;
+            // if the updating elements change order then selection.order() would be required to update the order.
+            // (#528)
             var enterSelection = updateSelection.enter()
-                .append(element) // <<<--- this is the secret sauce of this whole file
+                .insert(element) // <<<--- this is the secret sauce of this whole file
                 .attr(attr)
                 .style('opacity', effectivelyZero);
 
