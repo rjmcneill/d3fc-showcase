@@ -6806,6 +6806,29 @@ button.close {
 .plot-area {
   overflow: hidden;
 }
+
+.axes-container {
+  overflow: visible;
+}
+
+.label {
+  text-anchor: middle;
+}
+
+.y-axis.right .label,
+.x-axis.top .label,
+.y-axis.left .label,
+.title .label {
+  dominant-baseline: hanging;
+}
+
+.x-axis.bottom .label {
+  dominant-baseline: ideographic;
+}
+
+.cartesian-chart {
+  overflow: visible;
+}
 /* Default Chart Styles */
 .chart {
 }
@@ -6949,36 +6972,72 @@ path.area {
   fill: transparent;
 }
 
+html,
+body {
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
 .container {
   height: 100%;
+}
+.row {
+  width: 100%;
 }
 [class*="col-"] {
   height: 100%;
 }
 .chart {
-  position: absolute;
   height: 100%;
   width: 100%;
-  display: block;
-  margin-left: 0px;
 }
-.menu #type-selection,
-.menu #period-selection {
+.chart rect.foreground {
+  opacity: 0 !important;
+}
+.head-menu #type-selection,
+.head-menu #period-selection {
   min-width: 0;
   width: auto;
   display: inline;
   vertical-align: middle;
 }
-#head-row {
-  width: 100%;
-  margin: 0px;
+.sidebar-menu .btn-group {
+  padding-top: 15px;
+}
+.sidebar-menu .btn-group .active {
+  background-color: #5cb85c;
+  color: #ffffff;
+}
+.head-row {
   padding-top: 10px;
   padding-bottom: 8px;
   background-color: #f0f8ff;
   border-bottom: 2px solid #b0c4de;
 }
-#primary-row {
-  width: 100%;
+.primary path.line {
+  stroke: #1a9af9;
+}
+.primary path.line.movingAverage {
+  stroke: #ff00ff;
+}
+.primary path.down {
+  stroke: #000000;
+  fill: #cc6600;
+}
+.primary path.up {
+  stroke: #000000;
+  fill: #66cc00;
+}
+.primary .upper > path.line {
+  stroke: #cc6600;
+}
+.primary .lower > path.line {
+  stroke: #66cc00;
+}
+.primary .average > path.line {
+  visibility: hidden;
+}
+.primary .area > path.area {
+  fill: #d3d3d3;
 }
 .closeLine text {
   fill: #ffffff;
@@ -6987,48 +7046,42 @@ path.area {
   stroke: #1a9af9;
   fill: #1a9af9;
 }
-.plot-area path.line {
-  stroke: #1a9af9;
+.secondary .x-axis path {
+  stroke: #fefefe;
 }
-.plot-area path.line.movingAverage {
-  stroke: #ff00ff;
+.secondary.secondary-rsi .right-handle text {
+  display: none;
 }
-.plot-area path.down {
-  stroke: #000000;
-  fill: #cc6600;
-}
-.plot-area path.up {
-  stroke: #000000;
-  fill: #66cc00;
-}
-.plot-area .upper > path.line {
-  stroke: #cc6600;
-}
-.plot-area .lower > path.line {
-  stroke: #66cc00;
-}
-.plot-area .average > path.line {
-  visibility: hidden;
-}
-.plot-area .area > path.area {
-  fill: #d3d3d3;
-}
-#secondary-row {
-  width: 100%;
-}
-#secondary-row > [class*="col-"] {
-  width: calc(100% - 45px);
-}
-#x-axis-row {
+.x-axis-row {
   height: 20px;
-  width: calc(100% - 45px);
 }
-#nav-row {
+.x-axis-row .chart {
+  padding-right: 45px;
+}
+.nav-row {
   height: 100px;
-  width: 100%;
 }
 .nav .extent {
   stroke: #d1d1e0;
   fill-opacity: 0.125;
   shape-rendering: crispEdges;
+}
+.row {
+  position: relative;
+  right: 0;
+  transition: right 0.25s ease-out;
+}
+@media screen and (max-width: 991px) {
+  .row-offcanvas-right.active {
+    right: 33.3%;
+  }
+  .row-offcanvas-right > .sidebar-offcanvas {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: -33.3%;
+  }
+  .row-offcanvas-right.active > .sidebar-offcanvas {
+    display: block;
+  }
 }
