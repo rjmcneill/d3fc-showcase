@@ -551,7 +551,7 @@
                 .data(sel.datum())
                 .enter()
                 .append('label')
-                .classed('btn btn-default', true)
+                .classed('btn btn-primary', true)
                 .classed('active', function(d, i) { return (i === activeValue); })
                 .text(function(d, i) { return d.displayString; })
                 .insert('input')
@@ -591,7 +591,7 @@
                 .data(sel.datum())
                 .enter()
                 .append('label')
-                .classed('btn btn-default', true)
+                .classed('btn btn-primary', true)
                 .text(function(d) { return d.displayString; })
                 .append('input')
                 .attr({
@@ -634,9 +634,8 @@
             'periodChange');
 
         function setPeriodChangeVisibility(visible) {
-            var visibility = visible ? 'visible' : 'hidden';
             d3.select('#period-selection')
-                .style('visibility', visibility);
+                .classed('hidden', !visible);
         }
 
         setPeriodChangeVisibility(false);
@@ -704,8 +703,8 @@
             })
             .yValue(function(d) { return d.movingAverage; });
 
-        var movingAverageIndicator = sc.menu.option('Moving Average', 'movingAverage', movingAverage);
-        var bollingerIndicator = sc.menu.option('Bollinger Bands', 'bollinger', fc.indicator.renderer.bollingerBands());
+        var movingAverageIndicator = sc.menu.option('SMA', 'movingAverage', movingAverage);
+        var bollingerIndicator = sc.menu.option('BB', 'bollinger', fc.indicator.renderer.bollingerBands());
 
         var toggle = sc.menu.generator.toggleGroup()
             .on('toggleChange', function(indicator) {
@@ -761,10 +760,10 @@
 
         var dispatch = d3.dispatch('primaryChartYValueAccessorChange');
 
-        var open = sc.menu.option('Open', 'open', function(d) { return d.open; });
-        var high = sc.menu.option('High', 'high', function(d) { return d.high; });
-        var low = sc.menu.option('Low', 'low', function(d) { return d.low; });
-        var close = sc.menu.option('Close', 'close', function(d) { return d.close; });
+        var open = sc.menu.option('O', 'open', function(d) { return d.open; });
+        var high = sc.menu.option('H', 'high', function(d) { return d.high; });
+        var low = sc.menu.option('L', 'low', function(d) { return d.low; });
+        var close = sc.menu.option('C', 'close', function(d) { return d.close; });
 
         var options = sc.menu.generator.buttonGroup(3)
             .on('optionChange', function(yValueAccessor) {
@@ -883,9 +882,8 @@
     'use strict';
 
     sc.util.dimensions.layout = function(container, secondaryCharts) {
-        var headRowHeight = parseInt(container.select('.head-row').style('height'), 10) +
-            parseInt(container.select('.head-row').style('padding-top'), 10) +
-            parseInt(container.select('.head-row').style('padding-bottom'), 10);
+        var headRowHeight = parseInt(container.select('nav').style('height'), 10) +
+            parseInt(container.select('nav').style('margin-bottom'), 10);
         var navHeight = parseInt(container.select('.nav-row').style('height'), 10);
         var xAxisHeight = parseInt(container.select('.x-axis-row').style('height'), 10);
 
@@ -1414,6 +1412,13 @@
             onViewChanged(navTimeDomain);
         }
 
+        function loading(isLoading) {
+            container.select('.loading-text')
+                .classed('hidden', !isLoading);
+            container.selectAll('.chart')
+                .classed('hidden', isLoading);
+        }
+
         function initialiseDataInterface() {
             var dataInterface = sc.data.dataInterface()
                 .on('messageReceived', function(socketEvent, data) {
@@ -1434,6 +1439,7 @@
                         console.log('Error getting historic data: ' + err);
                     } else {
                         dataModel.data = data;
+                        loading(false);
                         resetToLive();
                     }
                 });
@@ -1443,6 +1449,7 @@
         function initialiseHeadMenu(dataInterface) {
             var headMenu = sc.menu.head()
                 .on('dataTypeChange', function(type) {
+                    loading(true);
                     if (type === 'bitcoin') {
                         dataModel.period = container.select('#period-selection').property('value');
                         dataInterface(dataModel.period);
@@ -1452,6 +1459,7 @@
                     }
                 })
                 .on('periodChange', function(period) {
+                    loading(true);
                     dataModel.period = period;
                     dataInterface(dataModel.period);
                 })
