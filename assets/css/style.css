@@ -1213,7 +1213,7 @@ body {
   font-family: 'Roboto', sans-serif;
   font-size: 16px;
   line-height: 1.5;
-  color: #333333;
+  color: #FFFFFF;
   background-color: #fff;
 }
 input,
@@ -3034,7 +3034,7 @@ select[multiple].input-lg {
   display: block;
   margin-top: 5px;
   margin-bottom: 10px;
-  color: #737373;
+  color: #ffffff;
 }
 @media (min-width: 768px) {
   .form-inline .form-group {
@@ -5402,7 +5402,7 @@ a.thumbnail.active {
 }
 .thumbnail .caption {
   padding: 9px;
-  color: #333333;
+  color: #FFFFFF;
 }
 .alert {
   padding: 15px;
@@ -8647,4 +8647,10 @@ fieldset[disabled] .btn-danger.active {
 }
 #charts-container #navbar-row #navbar-container .cartesian-chart {
   display: block;
+}
+#loading-message .content {
+  text-align: center;
+  padding: 10px;
+  border-top: #3C4F53 1px solid;
+  margin-right: 60px;
 }
