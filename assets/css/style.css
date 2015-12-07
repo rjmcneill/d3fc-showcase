@@ -1,139 +1,145 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto);
 .sc-icon-andrews-pitchfork-tool {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
   background-position: 22.55639097744361% 44.44444444444444%;
   width: 30px;
   height: 25px;
 }
 .sc-icon-annotations-tool {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
   background-position: 58.64661654135338% 27.77777777777778%;
   width: 30px;
   height: 25px;
 }
 .sc-icon-area-series {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
-  background-position: 100% 0;
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
+  background-position: 100% 27.77777777777778%;
   width: 25px;
   height: 25px;
 }
 .sc-icon-arrow-line-tool {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
   background-position: 0 44.44444444444444%;
   width: 30px;
   height: 25px;
 }
+.sc-icon-bar-series {
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
+  background-position: 100% 0;
+  width: 25px;
+  height: 25px;
+}
 .sc-icon-bollinger-bands-indicator {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
   background-position: 72.46376811594203% 100%;
   width: 25px;
   height: 25px;
 }
 .sc-icon-candlestick-series {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
-  background-position: 54.34782608695652% 100%;
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
+  background-position: 36.231884057971016% 100%;
   width: 25px;
   height: 25px;
 }
 .sc-icon-delete {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
-  background-position: 93.87755102040816% 50.505050505050505%;
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
+  background-position: 93.87755102040816% 75.75757575757575%;
   width: 16px;
   height: 16px;
 }
 .sc-icon-ellipse-tool {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
-  background-position: 0 72.22222222222223%;
-  width: 30px;
-  height: 25px;
-}
-.sc-icon-fibonacci-arc-tool {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
   background-position: 22.55639097744361% 72.22222222222223%;
   width: 30px;
   height: 25px;
 }
-.sc-icon-fibonnacci-fan-tool {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
+.sc-icon-fibonacci-arc-tool {
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
   background-position: 45.11278195488722% 72.22222222222223%;
   width: 30px;
   height: 25px;
 }
-.sc-icon-fibonnacci-retracement-tool {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
+.sc-icon-fibonnacci-fan-tool {
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
   background-position: 81.203007518797% 0;
   width: 30px;
   height: 25px;
 }
+.sc-icon-fibonnacci-retracement-tool {
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
+  background-position: 0 72.22222222222223%;
+  width: 30px;
+  height: 25px;
+}
 .sc-icon-freeform-tool {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
   background-position: 36.090225563909776% 0;
   width: 30px;
   height: 25px;
 }
 .sc-icon-line-series {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
-  background-position: 36.231884057971016% 100%;
-  width: 25px;
-  height: 25px;
-}
-.sc-icon-macd-indicator {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
   background-position: 78.26086956521739% 55.55555555555556%;
   width: 25px;
   height: 25px;
 }
-.sc-icon-moving-average-indicator {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
+.sc-icon-macd-indicator {
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
   background-position: 0 100%;
   width: 25px;
   height: 25px;
 }
-.sc-icon-navigator-handle {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
-  background-position: 93.87755102040816% 66.66666666666667%;
-  width: 16px;
-  height: 16px;
-}
-.sc-icon-ohlc-series {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
+.sc-icon-moving-average-indicator {
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
   background-position: 18.115942028985508% 100%;
   width: 25px;
   height: 25px;
 }
-.sc-icon-point-series {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
+.sc-icon-navigator-handle {
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
+  background-position: 93.87755102040816% 91.91919191919192%;
+  width: 16px;
+  height: 16px;
+}
+.sc-icon-ohlc-series {
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
   background-position: 78.26086956521739% 27.77777777777778%;
   width: 25px;
   height: 25px;
 }
+.sc-icon-point-series {
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
+  background-position: 54.34782608695652% 100%;
+  width: 25px;
+  height: 25px;
+}
 .sc-icon-rectangle-tool {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
   background-position: 58.64661654135338% 0;
   width: 30px;
   height: 25px;
 }
 .sc-icon-reset-active {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
   background-position: 17.26618705035971% 0;
   width: 24px;
   height: 40px;
 }
 .sc-icon-reset-inactive {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
   background-position: 0 0;
   width: 24px;
   height: 40px;
 }
 .sc-icon-rsi-indicator {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
-  background-position: 100% 27.77777777777778%;
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
+  background-position: 100% 55.55555555555556%;
   width: 25px;
   height: 25px;
 }
 .sc-icon-settings {
-  background: url(sc-icon-sprite-b7cbdd0e.svg) no-repeat;
-  background-position: 99.35483870967742% 46.728971962616825%;
+  background: url(sc-icon-sprite-72ad6bfc.svg) no-repeat;
+  background-position: 99.35483870967742% 70.09345794392523%;
   width: 8px;
   height: 8px;
 }
@@ -7429,6 +7435,7 @@ body {
   font-family: 'Roboto', sans-serif;
   font-weight: 300;
   line-height: 1.5;
+  height: 100%;
 }
 text {
   font-family: 'Roboto', sans-serif;
@@ -8412,6 +8419,10 @@ fieldset[disabled] .btn-danger.active {
   stroke: #984EA3;
   stroke-width: 1px;
 }
+.secondary-container .macd-divergence .bar {
+  stroke: #7B9FA1;
+  fill: #3C4F53;
+}
 .secondary-container .macd-signal .line {
   stroke: #E41A1C;
   stroke-width: 1px;
@@ -8422,6 +8433,10 @@ fieldset[disabled] .btn-danger.active {
 }
 .secondary-container .zero .annotation line {
   visibility: hidden;
+}
+.secondary-container .bar {
+  stroke: #7B9FA1;
+  fill: #3C4F53;
 }
 #navbar-row #navbar-container {
   min-height: 100px;
