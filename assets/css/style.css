@@ -7175,6 +7175,10 @@ text {
   border-collapse: separate;
 }
 
+.tooltip.cell {
+  dominant-baseline: hanging;
+}
+
 .plot-area {
   overflow: hidden;
 }
@@ -7245,13 +7249,13 @@ text {
 }
 
 /* Series Type Defaults */
-.candlestick {
+.candlestick, .waterfall {
   stroke: #000;
 }
-.candlestick.down {
+.candlestick.down, .waterfall.down {
   fill: #c60;
 }
-.candlestick.up {
+.candlestick.up, .waterfall.up {
   fill: #6c0;
 }
 
@@ -7451,13 +7455,6 @@ text {
 }
 [class*="col-"] {
   height: 100%;
-}
-.secondary-container {
-  height: 100%;
-  width: 100%;
-}
-.secondary-container rect.foreground {
-  opacity: 0 !important;
 }
 .cartesian-chart .axes-container {
   overflow: visible;
@@ -8258,6 +8255,13 @@ fieldset[disabled] .btn-danger.active {
 .head-row .head-sub-row {
   display: flex;
   padding-right: 75px;
+  align-items: center;
+}
+.head-row .head-sub-row #product-dropdown {
+  flex-grow: 1;
+}
+.head-row .head-sub-row #product-dropdown button {
+  border: none !important;
 }
 .head-row .head-sub-row #period-selector {
   align-self: flex-end;
@@ -8294,6 +8298,25 @@ fieldset[disabled] .btn-danger.active {
   font-weight: 300;
   line-height: 1.5;
   display: block;
+}
+.head-row .head-sub-row .selectors {
+  position: initial;
+  flex-grow: 1;
+}
+.head-row .head-sub-row #mobile-product-dropdown button {
+  height: 34px;
+}
+.head-row .head-sub-row #mobile-period-selector {
+  align-self: center;
+}
+.head-row .head-sub-row #mobile-period-selector button {
+  height: 34px;
+  font-size: 14px;
+}
+.head-row .head-sub-row .delete-button {
+  align-self: center;
+  margin-right: 12px;
+  cursor: pointer;
 }
 #primary-container {
   background-color: #263337;
@@ -8367,12 +8390,13 @@ fieldset[disabled] .btn-danger.active {
   stroke-dasharray: 0;
 }
 #legend {
-  position: absolute;
-  top: 1px;
-  right: 75px;
+  margin-top: 1px;
+  margin-right: 75px;
   padding: 10px;
   background-color: rgba(38, 51, 55, 0.75);
+  border-radius: 2px;
   font-size: 12px;
+  align-self: flex-end;
 }
 #legend span:nth-child(2) {
   min-width: 70px;
@@ -8401,6 +8425,10 @@ fieldset[disabled] .btn-danger.active {
 }
 .plot-area .annotation > line {
   stroke: #377EB8;
+}
+.secondary-container {
+  height: 100%;
+  width: 100%;
 }
 .secondary-container .background {
   stroke: #3C4F53;
@@ -8541,11 +8569,15 @@ fieldset[disabled] .btn-danger.active {
   stroke: #3C4F53;
 }
 .dropdown .dropdown-toggle {
-  border: none;
   background-image: none;
   background-color: #263337;
   outline: none;
   box-shadow: none;
+  border: 1px solid #3C4F53;
+  border-radius: 2px;
+  color: #7B9FA1;
+  font-size: 14px;
+  margin-right: 12px;
 }
 .dropdown .dropdown-menu {
   -webkit-border-radius: 2px 2px 2px 2px;
@@ -8577,42 +8609,40 @@ fieldset[disabled] .btn-danger.active {
   border-right: 5px solid transparent;
   border-top: 6px solid #7B9FA1;
 }
-#selectors {
+.selectors {
   position: absolute;
   display: flex;
-  left: 21px;
+  left: 8px;
 }
-#selectors #indicator-dropdown a {
+.selectors .indicator-dropdown a {
   padding-left: 10px;
   padding-right: 10px;
 }
-#selectors .selector-dropdown {
-  margin-right: 12px;
-}
-#selectors .selector-dropdown:first-child .dropdown-toggle {
+.selectors .selector-dropdown:first-child .dropdown-toggle {
   width: 50px;
 }
-#selectors .selector-dropdown:nth-child(2) .dropdown-toggle {
+.selectors .selector-dropdown:nth-child(2) .dropdown-toggle {
   width: 130px;
   font-size: 14px;
   color: #7B9FA1;
 }
-#selectors .dropdown-toggle {
+.selectors .dropdown-toggle {
   border: 1px solid #3C4F53;
   height: 34px;
-  margin-top: 6px;
+  pointer-events: visiblePainted;
 }
-#selectors .dropdown-toggle > .icon {
+.selectors .dropdown-toggle > .icon {
   vertical-align: middle;
   display: inline-block;
 }
-#selectors .dropdown-menu {
+.selectors .dropdown-menu {
   top: 40px;
 }
-#selectors ul {
+.selectors ul {
   text-align: left;
+  pointer-events: visiblePainted;
 }
-#selectors li .icon {
+.selectors li .icon {
   vertical-align: middle;
   margin-right: 16px;
   display: inline-block;
@@ -8628,40 +8658,114 @@ fieldset[disabled] .btn-danger.active {
 .product-dropdown .dropdown-menu {
   text-align: center;
 }
-#charts-container {
+#charts-container,
+#overlay {
   display: flex;
   flex-direction: column;
   width: 100%;
 }
-#charts-container #primary-container {
+#charts-container #primary-container,
+#overlay #primary-container,
+#charts-container #overlay-primary-container,
+#overlay #overlay-primary-container {
   width: 100%;
   flex: 5;
 }
-#charts-container .secondary-container {
+#charts-container .secondary-container,
+#overlay .secondary-container,
+#charts-container .overlay-secondary-container,
+#overlay .overlay-secondary-container {
   flex: 1;
 }
-#charts-container #x-axis-row {
+#charts-container .x-axis-row,
+#overlay .x-axis-row {
   flex: 0 0 23px;
   display: flex;
   flex-direction: row;
 }
-#charts-container #x-axis-row #x-axis-container {
+#charts-container .x-axis-row #x-axis-container,
+#overlay .x-axis-row #x-axis-container {
   flex: 1;
   height: 23px;
   margin-right: 60px;
 }
-#charts-container #navbar-row {
+#charts-container #navbar-row,
+#overlay #navbar-row,
+#charts-container #overlay-navbar-row,
+#overlay #overlay-navbar-row {
   flex: 0 0.5 100px;
   display: flex;
   flex-direction: row;
 }
-#charts-container #navbar-row #navbar-container {
+#charts-container #navbar-row #navbar-container,
+#overlay #navbar-row #navbar-container,
+#charts-container #overlay-navbar-row #navbar-container,
+#overlay #overlay-navbar-row #navbar-container {
   flex: 1;
   max-height: 100px;
   margin-right: 60px;
 }
-#charts-container #navbar-row #navbar-container .cartesian-chart {
+#charts-container #navbar-row #navbar-container .cartesian-chart,
+#overlay #navbar-row #navbar-container .cartesian-chart,
+#charts-container #overlay-navbar-row #navbar-container .cartesian-chart,
+#overlay #overlay-navbar-row #navbar-container .cartesian-chart {
   display: block;
+}
+#overlay {
+  height: 100%;
+  position: absolute;
+  top: 0;
+  pointer-events: none;
+  padding-right: 15px;
+}
+#overlay #overlay-primary-container {
+  display: flex;
+  flex-direction: column;
+}
+#overlay #overlay-primary-container #overlay-primary-head {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 40px;
+}
+#overlay #overlay-primary-container #overlay-primary-head .selectors {
+  margin-top: 6px;
+}
+#overlay #overlay-primary-container #overlay-primary-bottom {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+}
+#overlay .edit-indicator-container {
+  display: flex;
+  margin-bottom: 8px;
+}
+#overlay .overlay-secondary-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+#overlay .edit-indicator {
+  background-color: rgba(38, 51, 55, 0.75);
+  border-radius: 2px;
+  margin-left: 3px;
+  margin-right: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+#overlay .edit-indicator .icon {
+  pointer-events: visiblePainted;
+  visibility: visible;
+  display: inline-block;
+  cursor: pointer;
+  vertical-align: middle;
+  background-color: #263337;
+  border-radius: 4px;
+}
+#overlay .edit-indicator .indicator-label {
+  color: #7B9FA1;
+  font-size: 12px;
+  vertical-align: middle;
+  margin-left: 6px;
 }
 #loading-message .content {
   text-align: center;
