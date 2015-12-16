@@ -1478,7 +1478,7 @@
       return fan;
   }
 
-  function lineAnnotation() {
+  function annotationLine() {
 
       var xScale = d3.time.scale(),
           yScale = d3.scale.linear(),
@@ -1806,7 +1806,7 @@
       return base;
   }
 
-  function point() {
+  function _point() {
 
       var decorate = noop,
           symbol = d3.svg.symbol();
@@ -1875,15 +1875,15 @@
           .element('g')
           .attr('class', 'crosshair');
 
-      var pointSeries = point()
+      var pointSeries = _point()
           .xValue(x)
           .yValue(y);
 
-      var horizontalLine = lineAnnotation()
+      var horizontalLine = annotationLine()
           .value(y)
           .label(function(d) { return d.y; });
 
-      var verticalLine = lineAnnotation()
+      var verticalLine = annotationLine()
           .orient('vertical')
           .value(x)
           .label(function(d) { return d.x; });
@@ -2280,7 +2280,7 @@
   // Renders a bar series as an SVG path based on the given array of datapoints. Each
   // bar has a fixed width, whilst the x, y and height are obtained from each data
   // point via the supplied accessor functions.
-  function bar() {
+  function svgBar() {
 
       var x = function(d, i) { return d.x; },
           y = function(d, i) { return d.y; },
@@ -2389,7 +2389,7 @@
   }
 
   // A drop-in replacement for the D3 axis, supporting the decorate pattern.
-  function axisSvg() {
+  function axis$1() {
 
       var scale = d3.scale.identity(),
           decorate = noop,
@@ -2603,8 +2603,8 @@
   }
 
   var svg = {
-      axis: axisSvg,
-      bar: bar,
+      axis: axis$1,
+      bar: svgBar,
       candlestick: candlestickSvg,
       ohlc: svgOhlc,
       errorBar: svgErrorBar
@@ -2723,7 +2723,7 @@
       var decorate = noop,
           barWidth = fractionalBarWidth(0.75),
           orient = 'vertical',
-          pathGenerator = bar();
+          pathGenerator = svgBar();
 
       var base = xyBase()
         .xValue(function(d, i) { return orient === 'vertical' ? d.date : d.close; })
@@ -2769,7 +2769,7 @@
           return orient === 'vertical' ? base.x : base.y;
       }
 
-      var bar$$ = function(selection) {
+      var bar = function(selection) {
           selection.each(function(data, index) {
 
               if (orient !== 'vertical' && orient !== 'horizontal') {
@@ -2816,32 +2816,32 @@
           });
       };
 
-      bar$$.decorate = function(x) {
+      bar.decorate = function(x) {
           if (!arguments.length) {
               return decorate;
           }
           decorate = x;
-          return bar$$;
+          return bar;
       };
-      bar$$.barWidth = function(x) {
+      bar.barWidth = function(x) {
           if (!arguments.length) {
               return barWidth;
           }
           barWidth = d3.functor(x);
-          return bar$$;
+          return bar;
       };
-      bar$$.orient = function(x) {
+      bar.orient = function(x) {
           if (!arguments.length) {
               return orient;
           }
           orient = x;
-          return bar$$;
+          return bar;
       };
 
-      d3.rebind(bar$$, base, 'xScale', 'xValue', 'x1Value', 'x0Value', 'yScale', 'yValue', 'y1Value', 'y0Value');
-      d3.rebind(bar$$, dataJoin, 'key');
+      d3.rebind(bar, base, 'xScale', 'xValue', 'x1Value', 'x0Value', 'yScale', 'yValue', 'y1Value', 'y0Value');
+      d3.rebind(bar, dataJoin, 'key');
 
-      return bar$$;
+      return bar;
   }
 
   function waterfall() {
@@ -3244,7 +3244,7 @@
       return groupedBar;
   }
 
-  function lineSeries() {
+  function _line() {
 
       var decorate = noop;
 
@@ -3331,7 +3331,7 @@
 
   function line() {
 
-      var line = lineSeries()
+      var line = _line()
           .yValue(function(d) { return d.y0 + d.y; });
 
       var stack = _stack()
@@ -3346,7 +3346,7 @@
       return stackedLine;
   }
 
-  function bar$1() {
+  function bar() {
 
       var bar = _bar()
           .yValue(function(d) { return d.y0 + d.y; })
@@ -3427,7 +3427,7 @@
 
   var stacked = {
       area: area,
-      bar: bar$1,
+      bar: bar,
       stack: _stack,
       line: line
   };
@@ -3506,7 +3506,7 @@
           yScale = d3.scale.linear(),
           xValue = function(d, i) { return d.date.getDay(); },
           subScale = d3.scale.linear(),
-          subSeries = lineSeries(),
+          subSeries = _line(),
           barWidth = fractionalBarWidth(0.75);
 
       var dataJoin = _dataJoin()
@@ -3681,7 +3681,7 @@
   // prefer using the fc.svg.axis directly.
   function axis() {
 
-      var axis = axisSvg(),
+      var axis = axis$1(),
           baseline = d3.functor(0),
           decorate = noop,
           xScale = d3.time.scale(),
@@ -3764,10 +3764,10 @@
       bar: _bar,
       candlestick: candlestick,
       cycle: cycle,
-      line: lineSeries,
+      line: _line,
       multi: multiSeries,
       ohlc: ohlc,
-      point: point,
+      point: _point,
       stacked: stacked,
       groupedBar: groupedBar,
       xyBase: xyBase,
@@ -4096,7 +4096,7 @@
       return elderRay;
   }
 
-  function envelope$1() {
+  function envelope() {
 
       var xScale = d3.time.scale(),
           yScale = d3.scale.linear(),
@@ -4113,12 +4113,12 @@
               return root(d).lower;
           });
 
-      var upperLine = lineSeries()
+      var upperLine = _line()
           .yValue(function(d, i) {
               return root(d).upper;
           });
 
-      var lowerLine = lineSeries()
+      var lowerLine = _line()
           .yValue(function(d, i) {
               return root(d).lower;
           });
@@ -4197,9 +4197,9 @@
           multiSeries$$ = multiSeries(),
           decorate = noop;
 
-      var annotations = lineAnnotation();
+      var annotations = annotationLine();
 
-      var forceLine = lineSeries()
+      var forceLine = _line()
           .yValue(function(d, i) {
               return d.force;
           });
@@ -4257,7 +4257,7 @@
       return force;
   }
 
-  function stochasticOscillator$1() {
+  function stochasticOscillator() {
 
       var xScale = d3.time.scale(),
           yScale = d3.scale.linear(),
@@ -4266,13 +4266,13 @@
           multi = multiSeries(),
           decorate = noop;
 
-      var annotations = lineAnnotation();
-      var dLine = lineSeries()
+      var annotations = annotationLine();
+      var dLine = _line()
           .yValue(function(d, i) {
               return d.stochastic.d;
           });
 
-      var kLine = lineSeries()
+      var kLine = _line()
           .yValue(function(d, i) {
               return d.stochastic.k;
           });
@@ -4345,7 +4345,7 @@
       return stochastic;
   }
 
-  function relativeStrengthIndex$1() {
+  function relativeStrengthIndex() {
 
       var xScale = d3.time.scale(),
           yScale = d3.scale.linear(),
@@ -4354,8 +4354,8 @@
           multiSeries$$ = multiSeries(),
           decorate = noop;
 
-      var annotations = lineAnnotation();
-      var rsiLine = lineSeries()
+      var annotations = annotationLine();
+      var rsiLine = _line()
           .yValue(function(d, i) { return d.rsi; });
 
       var rsi = function(selection) {
@@ -4425,14 +4425,14 @@
       return rsi;
   }
 
-  function macd$2() {
+  function macd$1() {
 
       var xScale = d3.time.scale(),
           yScale = d3.scale.linear(),
           xValue = function(d) { return d.date; },
           root = function(d) { return d.macd; },
-          macdLine = lineSeries(),
-          signalLine = lineSeries(),
+          macdLine = _line(),
+          signalLine = _line(),
           divergenceBar = _bar(),
           multiSeries$$ = multiSeries(),
           decorate = noop;
@@ -4518,17 +4518,17 @@
               return root(d).lower;
           });
 
-      var upperLine = lineSeries()
+      var upperLine = _line()
           .yValue(function(d, i) {
               return root(d).upper;
           });
 
-      var averageLine = lineSeries()
+      var averageLine = _line()
           .yValue(function(d, i) {
               return root(d).average;
           });
 
-      var lowerLine = lineSeries()
+      var lowerLine = _line()
           .yValue(function(d, i) {
               return root(d).lower;
           });
@@ -4603,11 +4603,11 @@
 
   var renderer = {
       bollingerBands: bollingerBands$1,
-      macd: macd$2,
-      relativeStrengthIndex: relativeStrengthIndex$1,
-      stochasticOscillator: stochasticOscillator$1,
+      macd: macd$1,
+      relativeStrengthIndex: relativeStrengthIndex,
+      stochasticOscillator: stochasticOscillator,
       forceIndex: forceIndex,
-      envelope: envelope$1,
+      envelope: envelope,
       elderRay: elderRay$1
   };
 
@@ -4906,7 +4906,7 @@
       return undefinedInputAdapter;
   }
 
-  function envelope() {
+  function envelope$1() {
 
       var envelopeAlgorithm = envelope$2();
 
@@ -5055,7 +5055,7 @@
       return stochastic;
   }
 
-  function stochasticOscillator() {
+  function stochasticOscillator$1() {
 
       var stoc = stochasticOscillator$2();
 
@@ -5135,7 +5135,7 @@
       return rsi;
   }
 
-  function relativeStrengthIndex() {
+  function relativeStrengthIndex$1() {
 
       var rsi = relativeStrengthIndex$2();
 
@@ -5153,7 +5153,7 @@
       return relativeStrengthIndex;
   }
 
-  function movingAverage() {
+  function movingAverage$1() {
 
       var ma = _slidingWindow()
               .accumulator(d3.mean)
@@ -5235,7 +5235,7 @@
       return macd;
   }
 
-  function macd$1() {
+  function macd$2() {
 
       var macdAlgorithm = macd$3()
           .value(function(d) { return d.close; });
@@ -5360,7 +5360,7 @@
       elderRay: elderRay$2
   };
 
-  function bollingerBands() {
+  function bollingerBands$2() {
 
       var bollingerAlgorithm = bollingerBands$3()
           .value(function(d) { return d.close; });
@@ -5384,16 +5384,16 @@
   }
 
   var algorithm = {
-      bollingerBands: bollingerBands,
+      bollingerBands: bollingerBands$2,
       calculator: calculator,
       exponentialMovingAverage: exponentialMovingAverage,
-      macd: macd$1,
+      macd: macd$2,
       merge: merge,
-      movingAverage: movingAverage,
-      relativeStrengthIndex: relativeStrengthIndex,
-      stochasticOscillator: stochasticOscillator,
+      movingAverage: movingAverage$1,
+      relativeStrengthIndex: relativeStrengthIndex$1,
+      stochasticOscillator: stochasticOscillator$1,
       forceIndex: forceIndex$1,
-      envelope: envelope,
+      envelope: envelope$1,
       elderRay: elderRay
   };
 
@@ -6219,7 +6219,7 @@
       var padding = 10,
           columns = 9,
           decorate = noop,
-          plotArea = lineSeries(),
+          plotArea = _line(),
           margin = {
               bottom: 30,
               right: 30
@@ -6227,9 +6227,9 @@
           values = function(d) { return d.values; },
           key = function(d) { return d.key; };
 
-      var xAxis = axisSvg()
+      var xAxis = axis$1()
           .ticks(2);
-      var yAxis = axisSvg()
+      var yAxis = axis$1()
           .orient('right')
           .ticks(3);
 
@@ -6519,11 +6519,11 @@
       var xScale = exportedScale();
       var yScale = d3.scale.linear();
       var radius = 2;
-      var line = lineSeries();
+      var line = _line();
 
       // configure the point series to render the data from the
       // highLowOpenClose function
-      var point$$ = point()
+      var point = _point()
           .xValue(function(d) { return d.x; })
           .yValue(function(d) { return d.y; })
           .decorate(function(sel) {
@@ -6538,10 +6538,10 @@
           });
 
       var multi = multiSeries()
-          .series([line, point$$])
+          .series([line, point])
           .mapping(function(series) {
               switch (series) {
-              case point$$:
+              case point:
                   return highLowOpenClose(this);
               default:
                   return this;
@@ -6550,7 +6550,7 @@
 
       var sparkline = function(selection) {
 
-          point$$.size(radius * radius * Math.PI);
+          point.size(radius * radius * Math.PI);
 
           selection.each(function(data) {
 
@@ -6692,7 +6692,7 @@
           xBaseline = null,
           yBaseline = null,
           chartLabel = '',
-          plotArea = lineSeries(),
+          plotArea = _line(),
           decorate = noop;
 
       // Each axis-series has a cross-scale which is defined as an identity
@@ -7062,7 +7062,7 @@
                   .append('path')
                   .classed('band', true);
 
-              var pathGenerator = bar()
+              var pathGenerator = svgBar()
                   .horizontalAlign('right')
                   .verticalAlign('top')
                   .x(x0Scaled)
@@ -7152,7 +7152,7 @@
   var annotation = {
       band: band,
       gridline: gridline,
-      line: lineAnnotation
+      line: annotationLine
   };
 
   var cssLayout = (function (module) {
@@ -9622,6 +9622,7 @@
 
   function product(config) {
       return {
+          family: config.family || 'Unspecified Family',
           display: config.display || 'Unspecified Product',
           priceFormat: d3.format(config.priceFormat || '.2f'),
           volumeFormat: d3.format(config.volumeFormat || 's'),
@@ -9823,22 +9824,22 @@
           ]};
   }
 
-  var movingAverage$1 = fc.series.line()
+  var movingAverage = fc.series.line()
     .decorate(function(select) {
         select.enter()
           .classed('movingAverage', true);
     })
     .yValue(function(d) { return d.movingAverage; });
-  movingAverage$1.id = util.uid();
+  movingAverage.id = util.uid();
 
-  var bollingerBands$2 = fc.indicator.renderer.bollingerBands();
-  bollingerBands$2.id = util.uid();
+  var bollingerBands = fc.indicator.renderer.bollingerBands();
+  bollingerBands.id = util.uid();
 
   var indicatorOptions = [
       option('Moving Average', 'movingAverage',
-        movingAverage$1, 'sc-icon-moving-average-indicator'),
+        movingAverage, 'sc-icon-moving-average-indicator'),
       option('Bollinger Bands', 'bollinger',
-        bollingerBands$2, 'sc-icon-bollinger-bands-indicator')
+        bollingerBands, 'sc-icon-bollinger-bands-indicator')
   ];
 
   var secondaryChartOptions = [
@@ -10093,7 +10094,7 @@
                   return option.isSelected;
               }).indexOf(true);
 
-              container.select('.series-dropdown')
+              container.select('#series-dropdown')
                 .datum({config: model.seriesSelector.config,
                     options: model.seriesSelector.options,
                     selectedIndex: selectedSeriesIndex})
@@ -10110,7 +10111,7 @@
                     return option;
                 });
 
-              container.select('.indicator-dropdown')
+              container.select('#indicator-dropdown')
                 .datum({config: model.indicatorSelector.config,
                     options: indicators,
                     selected: selectedIndicatorIndexes})
@@ -10147,8 +10148,10 @@
             .on('click', dispatch.tabClick);
 
           li.classed('active', function(d, i) { return i === selectedIndex; })
-            .select('a')
-            .text(function(option) { return option.displayString; });
+              .select('a')
+              .text(function(option) { return option.displayString; });
+
+          li.exit().remove();
       }
 
       d3.rebind(tabGroup, dispatch, 'on');
@@ -10176,18 +10179,12 @@
               var container = d3.select(this);
 
               var products = model.products;
-              var productDatum = {
-                  config: model.productConfig,
-                  options: products.map(productAdaptor),
-                  selectedIndex: products.indexOf(model.selectedProduct)
-              };
-
               container.select('#product-dropdown')
-                  .datum(productDatum)
-                  .call(dataProductDropdown);
-
-              container.select('#mobile-product-dropdown')
-                  .datum(productDatum)
+                  .datum({
+                      config: model.productConfig,
+                      options: products.map(productAdaptor),
+                      selectedIndex: products.indexOf(model.selectedProduct)
+                  })
                   .call(dataProductDropdown);
 
               var periods = model.selectedProduct.periods;
@@ -10447,6 +10444,11 @@
           dispatch[event.dataLoaded](generatedData);
       };
 
+      dataInterface.setNewProduct = function(newProduct) {
+          historicFeed.product(newProduct);
+          coinbaseWebSocket.product(newProduct);
+      };
+
       function invalidate() {
           coinbaseWebSocket.close();
           data = [];
@@ -10462,6 +10464,39 @@
       d3.rebind(dataInterface, dispatch, 'on');
 
       return dataInterface;
+  }
+
+  function formatProducts(minute1, minute5, hour1, day1, response) {
+      var products = response.map(function(product) {
+          if (product.id !== 'BTC-USD') {
+              return {
+                  family: 'bitcoin',
+                  display: product.id,
+                  volumeFormat: '.2f',
+                  periods: [hour1, day1]
+              };
+          } else {
+              return {
+                  family: 'bitcoin',
+                  display: product.id,
+                  volumeFormat: '.2f',
+                  periods: [minute1, minute5, hour1, day1]
+              };
+          }
+      });
+
+      // Format the new products correctly
+      return products.map(model.data.product);
+  }
+
+  function coinbaseProducts(minute1, minute5, hour1, day1, callback) {
+      d3.json('https://api.exchange.coinbase.com/products', function(error, response) {
+          if (error) {
+              callback(error);
+          } else {
+              callback(error, formatProducts(minute1, minute5, hour1, day1, response));
+          }
+      });
   }
 
   function app() {
@@ -10511,16 +10546,11 @@
           seconds: 60,
           d3TimeInterval: {unit: d3.time.minute, value: 1},
           timeFormat: '%H:%M'});
-
       var generated = model.data.product({
+          family: 'generated',
           display: 'Data Generator',
           volumeFormat: '.3s',
           periods: [day1]
-      });
-      var bitcoin = model.data.product({
-          display: 'Bitcoin',
-          volumeFormat: '.2f',
-          periods: [minute1, minute5, hour1]
       });
 
       var primaryChartModel = model.chart.primary(generated);
@@ -10529,7 +10559,7 @@
       var xAxisModel = model.chart.xAxis(day1);
       var navModel = model.chart.nav();
       var navResetModel = model.chart.navigationReset();
-      var headMenuModel = model.menu.head([generated, bitcoin], generated, day1);
+      var headMenuModel = model.menu.head([generated], generated, day1);
       var legendModel = model.chart.legend(generated, day1);
       var overlayModel = model.menu.overlay();
 
@@ -10580,7 +10610,7 @@
               .datum(headMenuModel)
               .call(headMenu);
 
-          containers.app.selectAll('.selectors')
+          containers.app.select('#selectors')
               .datum(selectorsModel)
               .call(selectors);
 
@@ -10725,9 +10755,10 @@
                   loading(true);
                   updateModelSelectedProduct(product.option);
                   updateModelSelectedPeriod(product.option.periods[0]);
-                  if (product.option === bitcoin) {
+                  if (product.option.family === 'bitcoin') {
+                      _dataInterface.setNewProduct(product.option.display);
                       _dataInterface(product.option.periods[0].seconds);
-                  } else if (product.option === generated) {
+                  } else if (product.option.family === 'generated') {
                       _dataInterface.generateDailyData();
                   }
                   render();
@@ -10756,6 +10787,20 @@
       }
 
       function deselectOption(option) { option.isSelected = false; }
+
+      function initialiseCoinbaseProducts() {
+          coinbaseProducts(minute1, minute5, hour1, day1, insertProductsIntoHeadMenuModel);
+      }
+
+      function insertProductsIntoHeadMenuModel(error, bitcoinProducts) {
+          if (error) {
+              console.log('Error getting coinbase products: ' + error); // TODO: something more useful for the user!
+          } else {
+              // Add the newly received products to the product list
+              headMenuModel.products = headMenuModel.products.concat(bitcoinProducts);
+              render();
+          }
+      }
 
       function initialiseSelectors() {
           return menu.selectors()
@@ -10814,6 +10859,7 @@
           initialiseResize();
 
           _dataInterface.generateDailyData();
+          initialiseCoinbaseProducts();
       };
 
       return app;

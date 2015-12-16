@@ -13,14 +13,9 @@
 <div class="container" id="app-container">
     <div class="row head-menu head-row">
         <div class="col-md-12 head-sub-row">
-            <div id="product-dropdown" class="dropdown product-dropdown hidden-xs hidden-sm"></div>
-            <div id="mobile-product-dropdown" class="dropdown hidden-md hidden-lg"></div>
-            <div class="selectors hidden-md hidden-lg">
-                <div class="series-dropdown dropdown selector-dropdown"></div>
-                <div class="indicator-dropdown dropdown selector-dropdown"></div>
-            </div>
+            <div id="product-dropdown" class="dropdown product-dropdown"></div>
             <div id="period-selector" class="hidden-xs hidden-sm"></div>
-            <div id="mobile-period-selector" class="dropdown hidden-md hidden-lg"></div>
+            <div id="mobile-period-selector" class="hidden-md hidden-lg dropdown"></div>
             <span id="clear-indicators" class="icon sc-icon-delete delete-button hidden-md hidden-lg"></span>
         </div>
     </div>
@@ -45,9 +40,9 @@
             <div id="overlay">
                 <div id="overlay-primary-container">
                     <div id="overlay-primary-head">
-                        <div class="selectors hidden-xs hidden-sm">
-                            <div class="series-dropdown dropdown selector-dropdown"></div>
-                            <div class="indicator-dropdown dropdown selector-dropdown"></div>
+                        <div id="selectors">
+                            <div id="series-dropdown" class="dropdown selector-dropdown"></div>
+                            <div id="indicator-dropdown" class="dropdown selector-dropdown"></div>
                         </div>
                         <div id="legend" class="hidden-xs hidden-sm"></div>
                     </div>
