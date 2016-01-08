@@ -2,8 +2,7 @@ import d3 from 'd3';
 import fc from 'd3fc';
 import util from '../util/util';
 
-export default function(width) {
-
+export default function(containerWidth) {
     var dispatch = d3.dispatch('zoom');
 
     var zoomBehavior = d3.behavior.zoom();
@@ -12,6 +11,8 @@ export default function(width) {
     var allowPan = true;
     var allowZoom = true;
     var trackingLatest = true;
+
+    var minimumPeriods = 5;
 
     function controlPan(zoomExtent) {
         // Don't pan off sides
@@ -39,43 +40,47 @@ export default function(width) {
         zoomBehavior.scale(1);
     }
 
-    function zoom(selection) {
+    function checkMinPeriods(domain) {
+        var selectedPeriod = d3.select('.head-menu').datum().selectedPeriod.seconds * 1000;
+        return ((domain[1].getTime() - domain[0].getTime()) >= (selectedPeriod * minimumPeriods));
+    }
 
+    function zoom(selection) {
         var xExtent = fc.util.extent()
-          .fields('date')(selection.datum().data);
+            .fields('date')(selection.datum().data);
 
         zoomBehavior.x(scale)
-          .on('zoom', function() {
-              var min = scale(xExtent[0]);
-              var max = scale(xExtent[1]);
+            .on('zoom', function() {
+                var min = scale(xExtent[0]);
+                var max = scale(xExtent[1]);
 
-              var maxDomainViewed = controlZoom([min, max - width]);
-              var panningRestriction = controlPan([min, max - width]);
-              translateXZoom(panningRestriction);
+                var maxDomainViewed = controlZoom([min, max - containerWidth]);
+                var panningRestriction = controlPan([min, max - containerWidth]);
+                translateXZoom(panningRestriction);
 
-              var panned = (zoomBehavior.scale() === 1);
-              var zoomed = (zoomBehavior.scale() !== 1);
+                var panned = (zoomBehavior.scale() === 1);
+                var zoomed = (zoomBehavior.scale() !== 1);
 
-              if ((panned && allowPan) || (zoomed && allowZoom)) {
-                  var domain = scale.domain();
-                  if (maxDomainViewed) {
-                      domain = xExtent;
-                  } else if (zoomed && trackingLatest) {
-                      domain = util.domain.moveToLatest(domain, selection.datum().data);
-                  }
+                if ((panned && allowPan) || (zoomed && allowZoom)) {
+                    var domain = scale.domain();
 
-                  if (domain[0].getTime() !== domain[1].getTime()) {
-                      dispatch.zoom(domain);
-                  } else {
-                      // Ensure the user can't zoom-in infinitely, causing the chart to fail to render
-                      // #168, #411
-                      resetBehaviour();
-                  }
-              } else {
-                  resetBehaviour();
-              }
-          });
+                    if (maxDomainViewed) {
+                        domain = xExtent;
+                    } else if (zoomed && trackingLatest) {
+                        domain = util.domain.moveToLatest(domain, selection.datum().data);
+                    }
 
+                    if (checkMinPeriods(domain)) {
+                        dispatch.zoom(domain);
+                    } else {
+                        // Ensure the user can't zoom-in infinitely, causing the chart to fail to render
+                        // #168, #411, #499
+                        resetBehaviour();
+                    }
+                } else {
+                    resetBehaviour();
+                }
+            });
         selection.call(zoomBehavior);
     }
 

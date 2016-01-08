@@ -18,6 +18,9 @@ export default function() {
     var handleBarWidth = 2;
     var yExtentPadding = [0, 0.04];
 
+    var minimumPeriods = 5;
+    var originalExtent;
+
     var dispatch = d3.dispatch(event.viewChange);
 
     var navChart = fc.chart.cartesian(fc.scale.dateTime(), d3.scale.linear())
@@ -100,6 +103,7 @@ export default function() {
         return ((navBrush.extent()[0][0] - navBrush.extent()[1][0]) === 0);
     }
 
+
     function createDefs(selection, data) {
         var defsEnter = selection.selectAll('defs')
           .data([0])
@@ -127,6 +131,47 @@ export default function() {
             .call(brushMask);
     }
 
+    function checkMinPeriods() {
+        var selectedPeriod = d3.select('.head-menu').datum().selectedPeriod.seconds * 1000;
+        return ((brush.extent()[1][0].getTime() - brush.extent()[0][0].getTime() >= (selectedPeriod * minimumPeriods)));
+    }
+
+    function setMinPeriods() {
+        var selectedPeriod = d3.select('.head-menu').datum().selectedPeriod.seconds * 1000;
+        var newBrush = [];
+        var overShoot = 0;
+
+        // If they have just moved the left handle
+        if (brush.extent()[0][0].getTime() > originalExtent[0][0].getTime() && brush.extent()[1][0].getTime() === originalExtent[1][0].getTime()) {
+            newBrush[0] = new Date(brush.extent()[1][0].getTime() - selectedPeriod * minimumPeriods);
+            newBrush[1] = brush.extent()[1][0];
+        // If they have just moved the right handle
+        } else if (brush.extent()[1][0].getTime() < originalExtent[1][0].getTime() && brush.extent()[0][0].getTime() === originalExtent[0][0].getTime()) {
+            newBrush[0] = brush.extent()[0][0];
+            newBrush[1] = new Date(brush.extent()[0][0].getTime() + selectedPeriod * minimumPeriods);
+        // If they have moved both handles
+        } else {
+            var centrePoint = (((brush.extent()[1][0].getTime() - brush.extent()[0][0].getTime()) / 2) + brush.extent()[0][0].getTime());
+
+            // If setting to the minimum periods would cause the lower handle to be before the first data point
+            if ((centrePoint - (selectedPeriod * minimumPeriods / 2)) < navChart.xDomain()[0].getTime()) {
+                overShoot = (centrePoint - (selectedPeriod * minimumPeriods / 2)) - navChart.xDomain()[0].getTime();
+                newBrush[0] = navChart.xDomain()[0];
+                newBrush[1] = new Date(centrePoint + (selectedPeriod * minimumPeriods / 2) - overShoot);
+            // If setting to the minimum periods would cause the upper handle to be after the last data point
+            } else if ((centrePoint + (selectedPeriod * minimumPeriods / 2)) > navChart.xDomain()[1]) {
+                overShoot = (centrePoint + (selectedPeriod * minimumPeriods / 2)) - navChart.xDomain()[1].getTime();
+                newBrush[0] = new Date(centrePoint - (selectedPeriod * minimumPeriods / 2) - overShoot);
+                newBrush[1] = navChart.xDomain()[1];
+            } else {
+                newBrush[0] = new Date(centrePoint - (selectedPeriod * minimumPeriods / 2));
+                newBrush[1] = new Date(centrePoint + (selectedPeriod * minimumPeriods / 2));
+            }
+        }
+
+        dispatch[event.viewChange]([newBrush[0], newBrush[1]]);
+    }
+
     function nav(selection) {
         var model = selection.datum();
 
@@ -145,7 +190,12 @@ export default function() {
         navChart.xDomain(fc.util.extent().fields('date')(model.data))
           .yDomain(yExtent);
 
-        brush.on('brush', function() {
+        brush.on('brushstart', function() {
+            d3.event.sourceEvent.stopPropagation();
+            originalExtent = brush.extent();
+        })
+        .on('brush', function() {
+            d3.event.sourceEvent.stopPropagation();
             var brushExtentIsEmpty = xEmpty(brush);
 
             // Hide the bar if the extent is empty
@@ -153,15 +203,21 @@ export default function() {
             if (!brushExtentIsEmpty) {
                 dispatch[event.viewChange]([brush.extent()[0][0], brush.extent()[1][0]]);
             }
-        })
-            .on('brushend', function() {
-                var brushExtentIsEmpty = xEmpty(brush);
-                setHide(selection, false);
-                if (brushExtentIsEmpty) {
-                    dispatch[event.viewChange](util.domain.centerOnDate(viewScale.domain(),
-                        model.data, brush.extent()[0][0]));
-                }
-            });
+        }).on('brushend', function() {
+            d3.event.sourceEvent.stopPropagation();
+            var brushExtentIsEmpty = xEmpty(brush);
+            setHide(selection, false);
+
+            if (brushExtentIsEmpty) {
+                var previousWidth = originalExtent[1][0].getTime() - originalExtent[0][0].getTime();
+                var newBrush = [new Date(brush.extent()[0][0].getTime() - previousWidth / 2),
+                    new Date(brush.extent()[1][0].getTime() + previousWidth / 2)];
+
+                dispatch[event.viewChange]([newBrush[0], newBrush[1]]);
+            } else if (!checkMinPeriods()) {
+                setMinPeriods();
+            }
+        });
 
         navChart.plotArea(navMulti);
         selection.call(navChart);
