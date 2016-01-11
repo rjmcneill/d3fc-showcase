@@ -38,26 +38,21 @@ export default function(containerWidth) {
         zoomBehavior.scale(1);
     }
 
-    function checkMinPeriods(domain, selectedPeriod, minimumPeriods) {
-        return ((domain[1].getTime() - domain[0].getTime()) >= (selectedPeriod * minimumPeriods));
+    function extentLessThanMinimumPeriods(domain, minimumPeriodMilliSeconds) {
+        return ((domain[1].getTime() - domain[0].getTime()) >= minimumPeriodMilliSeconds);
     }
 
     function zoom(selection) {
         var xExtent = fc.util.extent()
             .fields('date')(selection.datum().data);
 
-        var selectedPeriod;
-        var minimumPeriods;
-
         zoomBehavior.x(scale)
             .on('zoom', function() {
                 var min = scale(xExtent[0]);
                 var max = scale(xExtent[1]);
 
-                if (selection.datum().period && selection.datum().minimumPeriods) {
-                    selectedPeriod = selection.datum().period.seconds * 1000;
-                    minimumPeriods = selection.datum().minimumPeriods;
-                }
+                var minimumPeriodMilliSeconds = selection.datum().period.seconds *
+                    selection.datum().minimumPeriods * 1000;
 
                 var maxDomainViewed = controlZoom([min, max - containerWidth]);
                 var panningRestriction = controlPan([min, max - containerWidth]);
@@ -72,13 +67,15 @@ export default function(containerWidth) {
                     if (maxDomainViewed) {
                         domain = xExtent;
                     } else if (zoomed && trackingLatest) {
-                        domain = util.domain.moveToLatest(domain, selection.datum().data);
+                        domain = util.domain.moveToLatest(domain,
+                            selection.datum().data);
                     }
 
-                    if (checkMinPeriods(domain, selectedPeriod, minimumPeriods)) {
+                    if (extentLessThanMinimumPeriods(domain, minimumPeriodMilliSeconds)) {
                         dispatch.zoom(domain);
                     } else {
-                        // Ensure the user can't zoom-in infinitely, causing the chart to fail to render
+                        // Ensure the user can't zoom-in infinitely, causing
+                        // the chart to fail to render
                         // #168, #411, #499
                         resetBehaviour();
                     }

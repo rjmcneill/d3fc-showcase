@@ -130,12 +130,12 @@ export default function() {
             .call(brushMask);
     }
 
-    function checkMinPeriods(selectedPeriod, minimumPeriods) {
-        return ((brush.extent()[1][0].getTime() - brush.extent()[0][0].getTime() >=
-            (selectedPeriod * minimumPeriods)));
+    function extentLessThanMinimumPeriods(minimumPeriodMilliSeconds) {
+        return (brush.extent()[1][0].getTime() - brush.extent()[0][0].getTime() >=
+            minimumPeriodMilliSeconds);
     }
 
-    function setMinPeriods(selectedPeriod, minimumPeriods) {
+    function setToMinPeriods(minimumPeriodMilliSeconds) {
         var newBrush = [];
         var overShoot = 0;
 
@@ -148,19 +148,16 @@ export default function() {
             brush.extent()[0][0].getTime() === originalExtent[0][0].getTime();
 
         if (leftHandleMoved) {
-            newBrush[0] = new Date(brush.extent()[1][0].getTime() -
-                selectedPeriod * minimumPeriods);
+            newBrush[0] = new Date(brush.extent()[1][0].getTime() - minimumPeriodMilliSeconds);
             newBrush[1] = brush.extent()[1][0];
         } else if (rightHandleMoved) {
             newBrush[0] = brush.extent()[0][0];
-            newBrush[1] = new Date(brush.extent()[0][0].getTime() +
-                selectedPeriod * minimumPeriods);
+            newBrush[1] = new Date(brush.extent()[0][0].getTime() + minimumPeriodMilliSeconds);
         } else {
-            var centrePoint = (((brush.extent()[1][0].getTime() -
-                brush.extent()[0][0].getTime()) / 2) +
-                brush.extent()[0][0].getTime());
+            var centrePoint = (brush.extent()[0][0].getTime() +
+                brush.extent()[1][0].getTime()) / 2;
 
-            var minPeriodDistance = (selectedPeriod * minimumPeriods / 2);
+            var minPeriodDistance = minimumPeriodMilliSeconds / 2;
 
             var beforeFirstDataPoint = (centrePoint - minPeriodDistance) <
                 navChart.xDomain()[0].getTime();
@@ -169,11 +166,11 @@ export default function() {
                 navChart.xDomain()[1].getTime();
 
             if (beforeFirstDataPoint) {
-                overShoot = (centrePoint - minPeriodDistance) - navChart.xDomain()[0].getTime();
+                overShoot = centrePoint - minPeriodDistance - navChart.xDomain()[0].getTime();
                 newBrush[0] = navChart.xDomain()[0];
                 newBrush[1] = new Date(centrePoint + minPeriodDistance - overShoot);
             } else if (afterLastDataPoint) {
-                overShoot = (centrePoint + minPeriodDistance) - navChart.xDomain()[1].getTime();
+                overShoot = centrePoint + minPeriodDistance - navChart.xDomain()[1].getTime();
                 newBrush[0] = new Date(centrePoint - minPeriodDistance - overShoot);
                 newBrush[1] = navChart.xDomain()[1];
             } else {
@@ -187,8 +184,9 @@ export default function() {
 
     function nav(selection, period) {
         var model = selection.datum();
-        var selectedPeriod = model.period.seconds * 1000;
-        var minimumPeriods = selection.datum().minimumPeriods;
+
+        var minimumPeriodMilliSeconds = model.period.seconds *
+                    selection.datum().minimumPeriods * 1000;
 
         createDefs(selection, model.data);
 
@@ -226,17 +224,14 @@ export default function() {
             setHide(selection, false);
 
             if (brushExtentIsEmpty) {
-                var previousWidth = originalExtent[1][0].getTime() -
-                    originalExtent[0][0].getTime();
-
-                newBrush =
-                    [new Date(brush.extent()[0][0].getTime() - previousWidth / 2),
-                    new Date(brush.extent()[1][0].getTime() + previousWidth / 2)];
-
-                dispatch[event.viewChange]([newBrush[0], newBrush[1]]);
-            } else if (!checkMinPeriods(selectedPeriod, minimumPeriods)) {
-                newBrush = setMinPeriods(selectedPeriod, minimumPeriods);
-                dispatch[event.viewChange]([newBrush[0], newBrush[1]]);
+                dispatch[event.viewChange](centerOnDate([originalExtent[0][0],
+                    originalExtent[1][0]], model.data, brush.extent()[0][0]));
+            } else if (!extentLessThanMinimumPeriods(minimumPeriodMilliSeconds)) {
+                newBrush = setToMinPeriods(minimumPeriodMilliSeconds);
+                var centreDate = new Date((newBrush[1].getTime() + newBrush[0].getTime()) / 2);
+                dispatch[event.viewChange](centerOnDate([newBrush[0], newBrush[1]],
+                    model.data, centreDate));
+                // dispatch[event.viewChange]([newBrush[0], newBrush[1]]);
             }
         });
 

@@ -28,7 +28,9 @@ export default function() {
             chart.yTickFormat(model.product.volumeFormat)
                 .trackingLatest(model.trackingLatest)
                 .xDomain(model.viewDomain)
-                .yDomain(paddedYExtent);
+                .yDomain(paddedYExtent)
+                .period(model.period)
+                .minimumPeriods(model.minimumPeriods);
 
             selection.datum(model.data)
                 .call(chart);

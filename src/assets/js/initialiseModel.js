@@ -148,7 +148,7 @@ export default function() {
         periods: periods,
         sources: sources,
         primaryChart: model.chart.primary(products.generated, periods.day1, minPeriods),
-        secondaryChart: model.chart.secondary(products.generated),
+        secondaryChart: model.chart.secondary(products.generated, periods.day1, minPeriods),
         selectors: initSelectors(),
         xAxis: model.chart.xAxis(periods.day1),
         nav: model.chart.nav(periods.day1, minPeriods),
