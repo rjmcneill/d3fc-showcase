@@ -142,15 +142,16 @@ export default function() {
     var periods = initPeriods();
     var sources = initSources();
     var products = initProducts();
+    var minPeriods = 5;
 
     return {
         periods: periods,
         sources: sources,
-        primaryChart: model.chart.primary(products.generated),
+        primaryChart: model.chart.primary(products.generated, periods.day1, minPeriods),
         secondaryChart: model.chart.secondary(products.generated),
         selectors: initSelectors(),
         xAxis: model.chart.xAxis(periods.day1),
-        nav: model.chart.nav(),
+        nav: model.chart.nav(periods.day1, minPeriods),
         navReset: model.chart.navigationReset(),
         headMenu: model.menu.head([products.generated, products.quandl], products.generated, periods.day1),
         legend: model.chart.legend(products.generated, periods.day1),

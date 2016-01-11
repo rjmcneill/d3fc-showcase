@@ -265,6 +265,8 @@ export default function() {
         model.headMenu.selectedPeriod = period;
         model.xAxis.period = period;
         model.legend.period = period;
+        model.navModel.period = period;
+        model.primaryChartModel.period = period;
     }
 
     function changeProduct(product) {
