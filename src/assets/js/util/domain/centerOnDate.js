@@ -3,23 +3,29 @@ import fc from 'd3fc';
 
 export default function(domain, data, centerDate) {
     var dataExtent = fc.util.extent()
-      .fields('date')(data);
-    var domainTimes = domain.map(function(d) { return d.getTime(); });
-    var domainTimeDifference = (d3.max(domainTimes) - d3.min(domainTimes)) / 1000;
+        .fields('date')(data);
+    var newBrush = [];
+    var overShoot = 0;
 
-    if (centerDate.getTime() < dataExtent[0] || centerDate.getTime() > dataExtent[1]) {
-        return [new Date(d3.min(domainTimes)), new Date(d3.max(domainTimes))];
+    if (domain[0].getTime() > domain[1].getTime()) {
+        var tempDomain = domain[0];
+        domain[0] = domain[1];
+        domain[1] = tempDomain;
     }
 
-    var centeredDataDomain = [d3.time.second.offset(centerDate, -domainTimeDifference / 2),
-        d3.time.second.offset(centerDate, domainTimeDifference / 2)];
-    var timeShift = 0;
-    if (centeredDataDomain[1].getTime() > dataExtent[1].getTime()) {
-        timeShift = (dataExtent[1].getTime() - centeredDataDomain[1].getTime()) / 1000;
-    } else if (centeredDataDomain[0].getTime() < dataExtent[0].getTime()) {
-        timeShift = (dataExtent[0].getTime() - centeredDataDomain[0].getTime()) / 1000;
+    var distanceAroundCenterDate = (domain[1].getTime() - domain[0].getTime()) / 2;
+    newBrush[0] = new Date(centerDate.getTime() - distanceAroundCenterDate);
+    newBrush[1] = new Date(centerDate.getTime() + distanceAroundCenterDate);
+
+    if (newBrush[0].getTime() < dataExtent[0].getTime()) {
+        overShoot = dataExtent[0].getTime() - domain[0].getTime();
+        newBrush[0] = dataExtent[0];
+        newBrush[1] = new Date(domain[1].getTime() + overShoot);
+    } else if (newBrush[1].getTime() > dataExtent[1].getTime()) {
+        overShoot = domain[1].getTime() - dataExtent[1].getTime();
+        newBrush[0] = new Date(domain[0].getTime() - overShoot);
+        newBrush[1] = dataExtent[1];
     }
 
-    return [d3.time.second.offset(centeredDataDomain[0], timeShift),
-        d3.time.second.offset(centeredDataDomain[1], timeShift)];
+    return newBrush;
 }

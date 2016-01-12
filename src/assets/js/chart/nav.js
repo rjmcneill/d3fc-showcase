@@ -156,27 +156,10 @@ export default function() {
         } else {
             var centrePoint = (brush.extent()[0][0].getTime() +
                 brush.extent()[1][0].getTime()) / 2;
-
             var minPeriodDistance = minimumPeriodMilliSeconds / 2;
 
-            var beforeFirstDataPoint = (centrePoint - minPeriodDistance) <
-                navChart.xDomain()[0].getTime();
-
-            var afterLastDataPoint = (centrePoint + minPeriodDistance) >
-                navChart.xDomain()[1].getTime();
-
-            if (beforeFirstDataPoint) {
-                overShoot = centrePoint - minPeriodDistance - navChart.xDomain()[0].getTime();
-                newBrush[0] = navChart.xDomain()[0];
-                newBrush[1] = new Date(centrePoint + minPeriodDistance - overShoot);
-            } else if (afterLastDataPoint) {
-                overShoot = centrePoint + minPeriodDistance - navChart.xDomain()[1].getTime();
-                newBrush[0] = new Date(centrePoint - minPeriodDistance - overShoot);
-                newBrush[1] = navChart.xDomain()[1];
-            } else {
-                newBrush[0] = new Date(centrePoint - minPeriodDistance);
-                newBrush[1] = new Date(centrePoint + minPeriodDistance);
-            }
+            newBrush[0] = new Date(centrePoint - minPeriodDistance);
+            newBrush[1] = new Date(centrePoint + minPeriodDistance);
         }
 
         return newBrush;
@@ -220,18 +203,18 @@ export default function() {
         }).on('brushend', function() {
             d3.event.sourceEvent.stopPropagation();
             var brushExtentIsEmpty = xEmpty(brush);
-            var newBrush;
+            var minimumBrush;
             setHide(selection, false);
 
             if (brushExtentIsEmpty) {
                 dispatch[event.viewChange](centerOnDate([originalExtent[0][0],
                     originalExtent[1][0]], model.data, brush.extent()[0][0]));
             } else if (!extentLessThanMinimumPeriods(minimumPeriodMilliSeconds)) {
-                newBrush = setToMinPeriods(minimumPeriodMilliSeconds);
-                var centreDate = new Date((newBrush[1].getTime() + newBrush[0].getTime()) / 2);
-                dispatch[event.viewChange](centerOnDate([newBrush[0], newBrush[1]],
+                minimumBrush = setToMinPeriods(minimumPeriodMilliSeconds);
+                var centreDate = new Date((minimumBrush[1].getTime() + minimumBrush[0].getTime()) / 2);
+
+                dispatch[event.viewChange](centerOnDate(minimumBrush,
                     model.data, centreDate));
-                // dispatch[event.viewChange]([newBrush[0], newBrush[1]]);
             }
         });
 

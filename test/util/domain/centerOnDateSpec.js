@@ -97,14 +97,14 @@ describe('util/domain/centerOnDate', function() {
         var centerOnDateDomain = centerOnDate(domain, data, centerDate);
 
         expect(centerOnDateDomain.length).toEqual(domain.length);
-        expect(centerOnDateDomain[0]).toEqual(tuesday);
-        expect(centerOnDateDomain[1]).toEqual(thursday);
+        expect(centerOnDateDomain[0]).toEqual(wednesday);
+        expect(centerOnDateDomain[1]).toEqual(friday);
 
         var shuffledCenterOnDateDomain = centerOnDate(reversedDomain, shuffledData, centerDate);
 
         expect(shuffledCenterOnDateDomain.length).toEqual(reversedDomain.length);
-        expect(shuffledCenterOnDateDomain[0]).toEqual(tuesday);
-        expect(shuffledCenterOnDateDomain[1]).toEqual(thursday);
+        expect(shuffledCenterOnDateDomain[0]).toEqual(wednesday);
+        expect(shuffledCenterOnDateDomain[1]).toEqual(friday);
     });
 
 });
