@@ -7,10 +7,11 @@
     <meta name="description" content="A cross-platform financial charting application to showcase the functionality of d3fc components">
     <title>d3fc Showcase</title>
     <link rel="stylesheet" href="assets/css/style.css">
-    <!-- Version: 0.8.0 -->
+    <!-- Version: 0.10.1 -->
 </head>
 <body>
 <div class="container" id="app-container">
+    <div id="notifications"></div>
     <div class="row head-menu head-row">
         <div class="col-md-12 head-sub-row">
             <div id="product-dropdown" class="dropdown product-dropdown"></div>
@@ -20,7 +21,7 @@
         </div>
     </div>
     <div class="row primary-row">
-        <div class="col-md-12" id="loading-message">
+        <div class="col-md-12" id="loading-status-message">
             <p class="content">Loading...</p>
         </div>
         <div id="charts" class="col-md-12 hidden">
@@ -32,7 +33,7 @@
                 <div class="x-axis-row">
                     <svg id="x-axis-container"></svg>
                 </div>
-                <div id="navbar-row" class="hidden-xs hidden-sm">
+                <div id="navbar-row">
                     <svg id="navbar-container"></svg>
                     <svg id="navbar-reset"></svg>
                 </div>
@@ -60,7 +61,7 @@
                     <div class="edit-indicator-container"></div>
                 </div>
                 <div class="x-axis-row"></div>
-                <div id="overlay-navbar-row" class="hidden-xs hidden-sm"></div>
+                <div id="overlay-navbar-row"></div>
             </div>
         </div>
     </div>
