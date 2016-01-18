@@ -320,7 +320,8 @@ export default function() {
                 } catch (e) {
                     responseText = '';
                 }
-                var statusText = err.statusText || 'Unknown reason.';
+
+                var statusText = handleHTTPErrors(err);
                 var message = 'Error getting historic data: ' + statusText + responseText;
 
                 addNotification(message);
@@ -423,7 +424,7 @@ export default function() {
 
     function addCoinbaseProducts(error, bitcoinProducts) {
         if (error) {
-            var statusText = error.statusText || 'Unknown reason.';
+            var statusText = handleHTTPErrors(error);
             var message = 'Error retrieving Coinbase products: ' + statusText;
             model.notificationMessages.messages.unshift(messageModel(message));
         } else {
@@ -435,6 +436,22 @@ export default function() {
         }
 
         render();
+    }
+
+    function handleHTTPErrors(error) {
+        var statusText;
+
+        // Range of CloudFlare specific error codes
+        if (error.status >= 520 && error.status <= 526) {
+            statusText = 'CloudFlare error -';
+            error.response.errors.forEach(function(_error) {
+                statusText += ' ' + _error.message;
+            });
+        } else {
+            statusText = error.statusText || 'Unknown reason.';
+        }
+
+        return statusText;
     }
 
     app.fetchCoinbaseProducts = function(x) {
