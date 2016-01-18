@@ -332,8 +332,14 @@ export default function() {
                 loading(false);
                 updateModelData(data);
                 model.legend.data = null;
-                resetToLatest();
-                updateLayout();
+
+                if (data.length > 1) {
+                    resetToLatest();
+                    updateLayout();
+                } else {
+                    revertToDataGen();
+                }
+
             })
             .on(event.historicFeedError, function(err, source) {
                 if (externalHistoricFeedErrorCallback) {
@@ -463,12 +469,26 @@ export default function() {
         } else {
             var defaultPeriods = [model.periods.hour1, model.periods.day1];
             var productPeriodOverrides = d3.map();
+
             productPeriodOverrides.set('BTC-USD', [model.periods.minute1, model.periods.minute5, model.periods.hour1, model.periods.day1]);
+
             var formattedProducts = formatCoinbaseProducts(bitcoinProducts, model.sources.bitcoin, defaultPeriods, productPeriodOverrides);
             model.headMenu.products = model.headMenu.products.concat(formattedProducts);
             model.overlay.products = model.headMenu.products;
         }
 
+        render();
+    }
+
+    function revertToDataGen() {
+        var message = 'No historic data received for selected product. Reverting to generated data';
+        addNotification(message);
+
+        // Update models to data gen product;
+        loading(true);
+        updateModelSelectedProduct(model.headMenu.products[0]);
+        updateModelSelectedPeriod(model.headMenu.products[0].periods[0]);
+        _dataInterface(model.headMenu.products[0].periods[0].seconds, model.headMenu.products[0]);
         render();
     }
 
