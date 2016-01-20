@@ -7340,7 +7340,13 @@ text {
   font-weight: 300;
   line-height: 1.5;
 }
-.container {
+#app-container {
+  max-width: 1170px;
+  height: 100%;
+  margin: 0 auto;
+}
+.container,
+.container-fluid {
   height: 100%;
   background: #263337;
 }
@@ -8321,91 +8327,83 @@ fieldset[disabled] .btn-danger.active {
   stroke: #7B9FA1;
   fill: #3C4F53;
 }
-#navbar-row {
-  display: none !important;
+#navbar-row #navbar-container {
+  min-height: 100px;
+  margin-right: 0 !important;
 }
-@media (min-device-width: 320px) and (min-device-height: 568px) {
-  #navbar-row {
-    display: inherit !important;
-  }
-  #navbar-row #navbar-container {
-    min-height: 100px;
-    margin-right: 0 !important;
-  }
-  #navbar-row #navbar-container .extent {
-    stroke: none;
-    shape-rendering: crispEdges;
-  }
-  #navbar-row #navbar-container .background {
-    fill: #1C2629;
-    stroke: #3C4F53;
-    stroke-width: 2px;
-  }
-  #navbar-row #navbar-container .plot-area .multi .area {
-    fill: #3C4F53;
-  }
-  #navbar-row #navbar-container .plot-area .multi path {
-    stroke: #7B9FA1;
-    stroke-width: 1px;
-  }
-  #navbar-row #navbar-container .plot-area .n,
-  #navbar-row #navbar-container .plot-area .s,
-  #navbar-row #navbar-container .plot-area .ne,
-  #navbar-row #navbar-container .plot-area .nw,
-  #navbar-row #navbar-container .plot-area .se,
-  #navbar-row #navbar-container .plot-area .sw {
-    display: none;
-  }
-  #navbar-row #navbar-container .plot-area .e > rect,
-  #navbar-row #navbar-container .plot-area .w > rect {
-    fill: #FFFFFF;
-    stroke-width: 0;
-    visibility: visible !important;
-  }
-  #navbar-row #navbar-container .plot-area .e .outer-handle,
-  #navbar-row #navbar-container .plot-area .w .outer-handle {
-    stroke: #FFFFFF;
-    fill: #263337;
-  }
-  #navbar-row #navbar-container .plot-area .e .inner-handle,
-  #navbar-row #navbar-container .plot-area .w .inner-handle {
-    stroke: #FFFFFF;
-    fill: #FFFFFF;
-  }
-  #navbar-row #navbar-container text {
-    font-size: 16px;
-    fill: #FFFFFF;
-  }
-  #navbar-row #navbar-container #brush-mask .mask-background {
-    fill: #000000;
-  }
-  #navbar-row #navbar-container #brush-mask .area {
-    fill: #FFFFFF;
-  }
-  #navbar-row #navbar-container #brush-gradient .brush-gradient-top {
-    stop-color: #FF7F00;
-  }
-  #navbar-row #navbar-container #brush-gradient .brush-gradient-bottom {
-    stop-color: #ffcc99;
-  }
-  #navbar-row #navbar-reset {
-    -webkit-flex: 0 0 24px;
-        -ms-flex: 0 0 24px;
-            flex: 0 0 24px;
-    height: 40px;
-    opacity: 0.2;
-    margin: 10px 21px 0 15px;
-  }
-  #navbar-row #navbar-reset .reset-button {
-    stroke: #FFFFFF;
-    fill: #263337;
-  }
-  #navbar-row #navbar-reset .reset-button.active {
-    fill: #FFFFFF;
-  }
-  #navbar-row #navbar-reset .reset-button > path {
-    cursor: pointer;
-  }
+#navbar-row #navbar-container .extent {
+  stroke: none;
+  shape-rendering: crispEdges;
+}
+#navbar-row #navbar-container .background {
+  fill: #1C2629;
+  stroke: #3C4F53;
+  stroke-width: 2px;
+}
+#navbar-row #navbar-container .plot-area .multi .area {
+  fill: #3C4F53;
+}
+#navbar-row #navbar-container .plot-area .multi path {
+  stroke: #7B9FA1;
+  stroke-width: 1px;
+}
+#navbar-row #navbar-container .plot-area .n,
+#navbar-row #navbar-container .plot-area .s,
+#navbar-row #navbar-container .plot-area .ne,
+#navbar-row #navbar-container .plot-area .nw,
+#navbar-row #navbar-container .plot-area .se,
+#navbar-row #navbar-container .plot-area .sw {
+  display: none;
+}
+#navbar-row #navbar-container .plot-area .e > rect,
+#navbar-row #navbar-container .plot-area .w > rect {
+  fill: #FFFFFF;
+  stroke-width: 0;
+  visibility: visible !important;
+}
+#navbar-row #navbar-container .plot-area .e .outer-handle,
+#navbar-row #navbar-container .plot-area .w .outer-handle {
+  stroke: #FFFFFF;
+  fill: #263337;
+}
+#navbar-row #navbar-container .plot-area .e .inner-handle,
+#navbar-row #navbar-container .plot-area .w .inner-handle {
+  stroke: #FFFFFF;
+  fill: #FFFFFF;
+}
+#navbar-row #navbar-container text {
+  font-size: 16px;
+  fill: #FFFFFF;
+}
+#navbar-row #navbar-container #brush-mask .mask-background {
+  fill: #000000;
+}
+#navbar-row #navbar-container #brush-mask .area {
+  fill: #FFFFFF;
+}
+#navbar-row #navbar-container #brush-gradient .brush-gradient-top {
+  stop-color: #FF7F00;
+}
+#navbar-row #navbar-container #brush-gradient .brush-gradient-bottom {
+  stop-color: #ffcc99;
+}
+#navbar-row #navbar-reset {
+  -webkit-flex: 0 0 24px;
+      -ms-flex: 0 0 24px;
+          flex: 0 0 24px;
+  height: 40px;
+  opacity: 0.2;
+  margin: 10px 21px 0 15px;
+}
+#navbar-row #navbar-reset .reset-button {
+  stroke: #FFFFFF;
+  fill: #263337;
+}
+#navbar-row #navbar-reset .reset-button.active {
+  fill: #FFFFFF;
+}
+#navbar-row #navbar-reset .reset-button > path {
+  cursor: pointer;
 }
 .x-axis-row {
   height: 23px;
@@ -8548,6 +8546,7 @@ fieldset[disabled] .btn-danger.active {
       -ms-flex-direction: column;
           flex-direction: column;
   width: 100%;
+  height: 100%;
 }
 #charts-container #primary-container,
 #overlay #primary-container,
@@ -8617,7 +8616,6 @@ fieldset[disabled] .btn-danger.active {
   display: block;
 }
 #overlay {
-  height: 100%;
   position: absolute;
   top: 0;
   pointer-events: none;
@@ -8693,11 +8691,27 @@ fieldset[disabled] .btn-danger.active {
   vertical-align: middle;
   margin-left: 6px;
 }
+#loading-status-message {
+  position: absolute;
+  top: 48px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(38, 51, 55, 0.6);
+  z-index: 500;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-justify-content: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-align-items: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
 #loading-status-message .content {
-  text-align: center;
-  padding: 10px;
-  border-top: #3C4F53 1px solid;
-  margin-right: 60px;
+  width: 400px;
+  max-width: 100%;
 }
 #notifications {
   position: fixed;
@@ -8735,5 +8749,38 @@ fieldset[disabled] .btn-danger.active {
     opacity: 1;
     -webkit-transform: perspective(400px) rotateX(0deg);
             transform: perspective(400px) rotateX(0deg);
+  }
+}
+.spinner {
+  border-top: 7px solid rgba(255, 255, 255, 0.2);
+  border-right: 7px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 7px solid rgba(255, 255, 255, 0.2);
+  border-left: 7px solid #ffffff;
+  -webkit-transform: translateZ(0);
+          transform: translateZ(0);
+  -webkit-animation: spin 0.6s infinite linear;
+          animation: spin 0.6s infinite linear;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+}
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
   }
 }
