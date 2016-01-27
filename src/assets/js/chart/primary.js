@@ -67,7 +67,7 @@ export default function() {
     crosshair.id = util.uid();
 
     var gridlines = fc.annotation.gridline()
-      .yTicks(5)
+      .yTicks(0)
       .xTicks(0);
     var closeLine = fc.annotation.line()
       .orient('horizontal')
@@ -93,6 +93,7 @@ export default function() {
 
     var primaryChart = fc.chart.cartesian(xScale, yScale)
       .xTicks(0)
+      .yTicks(0)
       .yOrient('right')
       .margin({
           top: 0,

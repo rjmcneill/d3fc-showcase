@@ -11,7 +11,7 @@ export default function() {
 
     var chart = base()
       .series([volumeBar])
-      .yTicks(4)
+      .yTicks(0)
       .on(event.viewChange, function(domain) {
           dispatch[event.viewChange](domain);
       });

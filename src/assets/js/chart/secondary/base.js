@@ -14,6 +14,7 @@ export default function() {
     var chart = fc.chart.cartesian(xScale, yScale)
       .plotArea(multi)
       .xTicks(0)
+      .yTicks(0)
       .yOrient('right')
       .margin({
           top: 0,

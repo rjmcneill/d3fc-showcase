@@ -14,7 +14,7 @@ export default function() {
 
     var chart = base()
       .series([zeroLine, renderer])
-      .yTicks(5)
+      .yTicks(0)
       .mapping(function(series) {
           return series === zeroLine ? [0] : this;
       })

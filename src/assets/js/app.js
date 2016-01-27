@@ -31,6 +31,9 @@ export default function() {
             <div id="charts" class="col-md-12"> \
                 <div id="charts-container"> \
                     <svg id="primary-container"></svg> \
+                    <div class="y-axis-row"> \
+                        <svg id="y-axis-container"></svg> \
+                    </div> \
                     <svg class="secondary-container"></svg> \
                     <svg class="secondary-container"></svg> \
                     <svg class="secondary-container"></svg> \
