@@ -1,6 +1,7 @@
-export default function() {
+export default function(intialProduct) {
     return {
         data: [],
-        viewDomain: []
+        viewDomain: [],
+        product: intialProduct
     };
 }

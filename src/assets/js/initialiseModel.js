@@ -146,7 +146,7 @@ export default function() {
         secondaryChart: model.chart.secondary(products.generated),
         selectors: initSelectors(),
         xAxis: model.chart.xAxis(periods.day1),
-        yAxis: model.chart.yAxis(),
+        yAxis: model.chart.yAxis(products.generated),
         nav: model.chart.nav(),
         navReset: model.chart.navigationReset(),
         headMenu: model.menu.head([products.generated, products.quandl], products.generated, periods.day1),

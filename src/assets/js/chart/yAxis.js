@@ -24,11 +24,25 @@ function getExtentAccessors(multiSeries) {
     }, []);
 }
 
+function calculateCloseAxisTagPath(width, height) {
+    var h2 = height / 2;
+    return [
+        [0, 0],
+        [h2, -h2],
+        [width, -h2],
+        [width, h2],
+        [h2, h2],
+        [0, 0]
+    ];
+}
+
 export default function() {
     var yScale = d3.scale.linear();
-    var yAxis = d3.svg.axis()
+    var yAxis = fc.svg.axis()
       .scale(yScale)
       .orient('right');
+
+    var yAxisWidth = 60;
 
     function yAxisChart(selection) {
         var model = selection.datum();
@@ -40,6 +54,8 @@ export default function() {
         var lowest;
         var highest;
 
+        yAxis.tickFormat(model.product.priceFormat);
+
         visibleData.forEach(function(dataPoint) {
             if (dataPoint.high > highest || !highest) {
                 highest = dataPoint.high;
@@ -50,8 +66,6 @@ export default function() {
             }
         });
 
-        // console.log(lowest, highest);
-
         var dataRange = [Math.max.apply(Math, model.data), Math.min.apply(Math, model.data)];
         var extentAccessors = ['high', 'low'];      //TODO: Fix
 
@@ -61,7 +75,20 @@ export default function() {
 
         yScale.domain(paddedYExtent);
 
-        yAxis.tickValues(tickValues);
+        yAxis.tickValues(tickValues)
+            .decorate(function(s) {
+                var closePriceTick = s
+                    .filter(function(d) { return d === latestPrice; })
+                    .classed('closeLine', true);
+
+                var calloutHeight = 18;
+                closePriceTick.select('path')
+                    .attr('d', function(d) {
+                        return d3.svg.area()(calculateCloseAxisTagPath(yAxisWidth, calloutHeight));
+                    });
+                closePriceTick.select('text')
+                    .attr('transform', 'translate(' + calloutHeight / 2 + ',1)');
+            });
 
         selection.call(yAxis);
     }

@@ -260,6 +260,7 @@ export default function() {
         model.primaryChart.product = product;
         model.secondaryChart.product = product;
         model.legend.product = product;
+        model.yAxis.product = product;
     }
 
     function updateModelSelectedPeriod(period) {

@@ -6,18 +6,6 @@ import option from '../model/menu/option';
 import candlestick from '../series/candlestick';
 import zoomBehavior from '../behavior/zoom';
 
-function calculateCloseAxisTagPath(width, height) {
-    var h2 = height / 2;
-    return [
-        [0, 0],
-        [h2, -h2],
-        [width, -h2],
-        [width, h2],
-        [h2, h2],
-        [0, 0]
-    ];
-}
-
 function produceAnnotatedTickValues(scale, annotation) {
     var annotatedTickValues = scale.ticks.apply(scale, []);
 
