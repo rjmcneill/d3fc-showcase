@@ -4,6 +4,7 @@ import navigationReset from './navigationReset';
 import primary from './primary';
 import secondary from './secondary';
 import xAxis from './xAxis';
+import yAxis from './yAxis';
 
 export default {
     legend: legend,
@@ -11,5 +12,6 @@ export default {
     navigationReset: navigationReset,
     primary: primary,
     secondary: secondary,
-    xAxis: xAxis
+    xAxis: xAxis,
+    yAxis: yAxis
 };

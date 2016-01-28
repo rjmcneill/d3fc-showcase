@@ -99,7 +99,7 @@ export default function() {
           top: 0,
           left: 0,
           bottom: 0,
-          right: yAxisWidth
+          right: 0
       });
 
     // Create and apply the Moving Average
@@ -182,28 +182,28 @@ export default function() {
         var visibleData = util.domain.filterDataInDateRange(primaryChart.xDomain(), model.data);
         // Add percentage padding either side of extreme high/lows
         var extentAccessors = getExtentAccessors(multi.series());
-        var paddedYExtent = fc.util.extent()
-            .fields(extentAccessors)
+        var paddedYExtent = fc.util.extent()            //
+            .fields(extentAccessors)                    //
             .pad(0.08)(visibleData);
-        primaryChart.yDomain(paddedYExtent);
+        primaryChart.yDomain(paddedYExtent);            //
 
         // Find current tick values and add close price to this list, then set it explicitly below
-        var latestPrice = currentYValueAccessor(model.data[model.data.length - 1]);
-        var tickValues = produceAnnotatedTickValues(yScale, [latestPrice]);
-        primaryChart.yTickValues(tickValues)
-          .yDecorate(function(s) {
-              var closePriceTick = s.selectAll('.tick')
-                .filter(function(d) { return d === latestPrice; })
-                .classed('closeLine', true);
+        var latestPrice = currentYValueAccessor(model.data[model.data.length - 1]); //
+        var tickValues = produceAnnotatedTickValues(yScale, [latestPrice]);         //
+        // primaryChart.yTickValues(tickValues)             // ROB TICK VALUES
+        //   .yDecorate(function(s) {
+        //       var closePriceTick = s.selectAll('.tick')
+        //         .filter(function(d) { return d === latestPrice; })
+        //         .classed('closeLine', true);
 
-              var calloutHeight = 18;
-              closePriceTick.select('path')
-                .attr('d', function(d) {
-                    return d3.svg.area()(calculateCloseAxisTagPath(yAxisWidth, calloutHeight));
-                });
-              closePriceTick.select('text')
-                .attr('transform', 'translate(' + calloutHeight / 2 + ',1)');
-          });
+        //       var calloutHeight = 18;
+        //       closePriceTick.select('path')
+        //         .attr('d', function(d) {
+        //             return d3.svg.area()(calculateCloseAxisTagPath(yAxisWidth, calloutHeight));
+        //         });
+        //       closePriceTick.select('text')
+        //         .attr('transform', 'translate(' + calloutHeight / 2 + ',1)');
+        //   });
 
         // Redraw
         primaryChart.plotArea(multi);
@@ -224,7 +224,7 @@ export default function() {
 
     // Call when the main layout is modified
     primary.dimensionChanged = function(container) {
-        zoomWidth = parseInt(container.style('width'), 10) - yAxisWidth;
+        zoomWidth = parseInt(container.style('width'), 10);
     };
 
     return primary;

@@ -30,9 +30,11 @@ export default function() {
         <div class="row primary-row"> \
             <div id="charts" class="col-md-12"> \
                 <div id="charts-container"> \
-                    <svg id="primary-container"></svg> \
-                    <div class="y-axis-row"> \
-                        <svg id="y-axis-container"></svg> \
+                    <div id="primary-chart-container"> \
+                        <svg id="primary-container"></svg> \
+                        <div class="y-axis-row"> \
+                            <svg id="y-axis-container"></svg> \
+                        </div> \
                     </div> \
                     <svg class="secondary-container"></svg> \
                     <svg class="secondary-container"></svg> \
@@ -86,6 +88,7 @@ export default function() {
         primary: undefined,
         secondaries: [],
         xAxis: chart.xAxis(),
+        yAxis: chart.yAxis(),
         navbar: undefined,
         legend: chart.legend()
     };
@@ -125,6 +128,9 @@ export default function() {
 
         containers.xAxis.datum(model.xAxis)
             .call(charts.xAxis);
+
+        containers.yAxis.datum(model.yAxis)
+            .call(charts.yAxis);
 
         containers.navbar.datum(model.nav)
             .call(charts.navbar);
@@ -179,6 +185,7 @@ export default function() {
         model.primaryChart.viewDomain = viewDomain;
         model.secondaryChart.viewDomain = viewDomain;
         model.xAxis.viewDomain = viewDomain;
+        model.yAxis.viewDomain = viewDomain;
         model.nav.viewDomain = viewDomain;
 
         var trackingLatest = util.domain.trackingLatestData(
@@ -245,6 +252,7 @@ export default function() {
         model.primaryChart.data = data;
         model.secondaryChart.data = data;
         model.nav.data = data;
+        model.yAxis.data = data;
     }
 
     function updateModelSelectedProduct(product) {
@@ -460,9 +468,11 @@ export default function() {
             app: appContainer,
             charts: chartsContainer,
             chartsAndOverlay: chartsAndOverlayContainer,
+            primaryChart: chartsContainer.select('#primary-chart-container'),
             primary: chartsContainer.select('#primary-container'),
             secondaries: chartsContainer.selectAll('.secondary-container'),
             xAxis: chartsContainer.select('#x-axis-container'),
+            yAxis: chartsContainer.select('#y-axis-container'),
             navbar: chartsContainer.select('#navbar-container'),
             overlay: overlayContainer,
             overlaySecondaries: overlayContainer.selectAll('.overlay-secondary-container'),
