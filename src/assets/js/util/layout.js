@@ -42,6 +42,7 @@ export default function(containers, charts) {
     containers.chartsAndOverlay.style('height', useableHeight + 'px');
 
     charts.xAxis.dimensionChanged(containers.xAxis);
+    charts.yAxis.dimensionChanged(containers.yAxis);
     charts.navbar.dimensionChanged(containers.navbar);
     charts.primary.dimensionChanged(containers.primary);
     for (var i = 0; i < charts.secondaries.length; i++) {

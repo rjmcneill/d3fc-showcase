@@ -67,7 +67,7 @@ export default function() {
     }
 
     yAxisChart.dimensionChanged = function(container) {
-        yScale.range([0, parseInt(container.style('height'), 10)]);
+        yScale.range([parseInt(container.style('height'), 10), 0]);
     };
 
     return yAxisChart;
