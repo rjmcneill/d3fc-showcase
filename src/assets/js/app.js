@@ -469,7 +469,6 @@ export default function() {
             app: appContainer,
             charts: chartsContainer,
             chartsAndOverlay: chartsAndOverlayContainer,
-            primaryChart: chartsContainer.select('#primary-chart-container'),
             primary: chartsContainer.select('#primary-container'),
             secondaries: chartsContainer.selectAll('.secondary-container'),
             xAxis: chartsContainer.select('#x-axis-container'),
