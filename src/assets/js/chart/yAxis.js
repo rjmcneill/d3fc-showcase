@@ -51,22 +51,9 @@ export default function() {
         var latestPrice = currentYValueAccessor(model.data[model.data.length - 1]);
         var tickValues = produceAnnotatedTickValues(yScale, [latestPrice]);
         var visibleData = util.domain.filterDataInDateRange(model.viewDomain, model.data);
-        var lowest;
-        var highest;
 
         yAxis.tickFormat(model.product.priceFormat);
 
-        visibleData.forEach(function(dataPoint) {
-            if (dataPoint.high > highest || !highest) {
-                highest = dataPoint.high;
-            }
-
-            if (dataPoint.low < lowest || !lowest) {
-                lowest = dataPoint.low;
-            }
-        });
-
-        var dataRange = [Math.max.apply(Math, model.data), Math.min.apply(Math, model.data)];
         var extentAccessors = ['high', 'low'];      //TODO: Fix
 
         var paddedYExtent = fc.util.extent()
@@ -83,7 +70,7 @@ export default function() {
 
                 var calloutHeight = 18;
                 closePriceTick.select('path')
-                    .attr('d', function(d) {
+                    .attr('d', function() {
                         return d3.svg.area()(calculateCloseAxisTagPath(yAxisWidth, calloutHeight));
                     });
                 closePriceTick.select('text')

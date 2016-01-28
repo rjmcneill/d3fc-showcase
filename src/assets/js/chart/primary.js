@@ -2,21 +2,7 @@ import d3 from 'd3';
 import fc from 'd3fc';
 import util from '../util/util';
 import event from '../event';
-import option from '../model/menu/option';
-import candlestick from '../series/candlestick';
 import zoomBehavior from '../behavior/zoom';
-
-function produceAnnotatedTickValues(scale, annotation) {
-    var annotatedTickValues = scale.ticks.apply(scale, []);
-
-    var extent = scale.domain();
-    for (var i = 0; i < annotation.length; i++) {
-        if (annotation[i] > extent[0] && annotation[i] < extent[1]) {
-            annotatedTickValues.push(annotation[i]);
-        }
-    }
-    return annotatedTickValues;
-}
 
 function getExtentAccessors(multiSeries) {
     return multiSeries.reduce(function(extentAccessors, series) {
@@ -29,8 +15,6 @@ function getExtentAccessors(multiSeries) {
 }
 
 export default function() {
-
-    var yAxisWidth = 60;
     var dispatch = d3.dispatch(event.viewChange, event.crosshairChange);
 
     var currentSeries;
@@ -40,18 +24,18 @@ export default function() {
 
     var crosshairData = [];
     var crosshair = fc.tool.crosshair()
-      .xLabel('')
-      .yLabel('')
-      .on('trackingmove', function(updatedCrosshairData) {
-          if (updatedCrosshairData.length > 0) {
-              dispatch.crosshairChange(updatedCrosshairData[0].datum);
-          } else {
-              dispatch.crosshairChange(undefined);
-          }
-      })
-      .on('trackingend', function() {
-          dispatch.crosshairChange(undefined);
-      });
+        .xLabel('')
+        .yLabel('')
+        .on('trackingmove', function(updatedCrosshairData) {
+            if (updatedCrosshairData.length > 0) {
+                dispatch.crosshairChange(updatedCrosshairData[0].datum);
+            } else {
+                dispatch.crosshairChange(undefined);
+            }
+        })
+        .on('trackingend', function() {
+            dispatch.crosshairChange(undefined);
+        });
     crosshair.id = util.uid();
 
     var gridlines = fc.annotation.gridline()
@@ -80,15 +64,14 @@ export default function() {
     var yScale = d3.scale.linear();
 
     var primaryChart = fc.chart.cartesian(xScale, yScale)
-      .xTicks(0)
-      .yTicks(0)
-      .yOrient('right')
-      .margin({
-          top: 0,
-          left: 0,
-          bottom: 0,
-          right: 0
-      });
+        .xTicks(0)
+        .yTicks(0)
+        .margin({
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0
+        });
 
     // Create and apply the Moving Average
     var movingAverage = fc.indicator.algorithm.movingAverage();
@@ -168,41 +151,24 @@ export default function() {
 
         // Scale y axis
         var visibleData = util.domain.filterDataInDateRange(primaryChart.xDomain(), model.data);
+
         // Add percentage padding either side of extreme high/lows
         var extentAccessors = getExtentAccessors(multi.series());
-        var paddedYExtent = fc.util.extent()            //
-            .fields(extentAccessors)                    //
+        var paddedYExtent = fc.util.extent()
+            .fields(extentAccessors)
             .pad(0.08)(visibleData);
-        primaryChart.yDomain(paddedYExtent);            //
-
-        // Find current tick values and add close price to this list, then set it explicitly below
-        var latestPrice = currentYValueAccessor(model.data[model.data.length - 1]); //
-        var tickValues = produceAnnotatedTickValues(yScale, [latestPrice]);         //
-        // primaryChart.yTickValues(tickValues)             // TICK VALUES
-        //   .yDecorate(function(s) {
-        //       var closePriceTick = s.selectAll('.tick')
-        //         .filter(function(d) { return d === latestPrice; })
-        //         .classed('closeLine', true);
-
-        //       var calloutHeight = 18;
-        //       closePriceTick.select('path')
-        //         .attr('d', function(d) {
-        //             return d3.svg.area()(calculateCloseAxisTagPath(yAxisWidth, calloutHeight));
-        //         });
-        //       closePriceTick.select('text')
-        //         .attr('transform', 'translate(' + calloutHeight / 2 + ',1)');
-        //   });
+        primaryChart.yDomain(paddedYExtent);
 
         // Redraw
         primaryChart.plotArea(multi);
         selection.call(primaryChart);
 
         var zoom = zoomBehavior(zoomWidth)
-          .scale(xScale)
-          .trackingLatest(model.trackingLatest)
-          .on('zoom', function(domain) {
-              dispatch[event.viewChange](domain);
-          });
+            .scale(xScale)
+            .trackingLatest(model.trackingLatest)
+            .on('zoom', function(domain) {
+                dispatch[event.viewChange](domain);
+            });
 
         selection.select('.plot-area')
           .call(zoom);
