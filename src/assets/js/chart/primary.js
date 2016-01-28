@@ -67,7 +67,7 @@ export default function() {
     crosshair.id = util.uid();
 
     var gridlines = fc.annotation.gridline()
-      .yTicks(0)
+      .yTicks(5)
       .xTicks(0);
     var closeLine = fc.annotation.line()
       .orient('horizontal')
@@ -190,7 +190,7 @@ export default function() {
         // Find current tick values and add close price to this list, then set it explicitly below
         var latestPrice = currentYValueAccessor(model.data[model.data.length - 1]); //
         var tickValues = produceAnnotatedTickValues(yScale, [latestPrice]);         //
-        // primaryChart.yTickValues(tickValues)             // ROB TICK VALUES
+        // primaryChart.yTickValues(tickValues)             // TICK VALUES
         //   .yDecorate(function(s) {
         //       var closePriceTick = s.selectAll('.tick')
         //         .filter(function(d) { return d === latestPrice; })
