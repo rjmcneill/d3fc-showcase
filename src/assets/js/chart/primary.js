@@ -157,6 +157,7 @@ export default function() {
         var paddedYExtent = fc.util.extent()
             .fields(extentAccessors)
             .pad(0.08)(visibleData);
+
         primaryChart.yDomain(paddedYExtent);
 
         // Redraw
