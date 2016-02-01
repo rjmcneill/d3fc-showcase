@@ -12,6 +12,8 @@ export default function(containerWidth) {
     var allowZoom = true;
     var trackingLatest = true;
 
+    var minimumVisiblePeriods;
+
     function controlPan(zoomExtent) {
         // Don't pan off sides
         if (zoomExtent[0] >= 0) {
@@ -38,10 +40,6 @@ export default function(containerWidth) {
         zoomBehavior.scale(1);
     }
 
-    function extentLessThanMinimumPeriods(domain, minimumPeriodMilliSeconds) {
-        return ((domain[1].getTime() - domain[0].getTime()) >= minimumPeriodMilliSeconds);
-    }
-
     function zoom(selection) {
         var xExtent = fc.util.extent()
             .fields('date')(selection.datum().data);
@@ -51,8 +49,8 @@ export default function(containerWidth) {
                 var min = scale(xExtent[0]);
                 var max = scale(xExtent[1]);
 
-                var minimumPeriodMilliSeconds = selection.datum().period.seconds *
-                    selection.datum().minimumPeriods * 1000;
+                var minimumPeriodMilliseconds = selection.datum().period.seconds *
+                    minimumVisiblePeriods * 1000;
 
                 var maxDomainViewed = controlZoom([min, max - containerWidth]);
                 var panningRestriction = controlPan([min, max - containerWidth]);
@@ -71,7 +69,7 @@ export default function(containerWidth) {
                             selection.datum().data);
                     }
 
-                    if (extentLessThanMinimumPeriods(domain, minimumPeriodMilliSeconds)) {
+                    if ((domain[1].getTime() - domain[0].getTime()) >= minimumPeriodMilliseconds) {
                         dispatch.zoom(domain);
                     } else {
                         // Ensure the user can't zoom-in infinitely, causing
@@ -115,6 +113,14 @@ export default function(containerWidth) {
             return scale;
         }
         scale = x;
+        return zoom;
+    };
+
+    zoom.minimumVisiblePeriods = function(x) {
+        if (!arguments.length) {
+            return minimumVisiblePeriods;
+        }
+        minimumVisiblePeriods = x;
         return zoom;
     };
 

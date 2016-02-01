@@ -24,7 +24,7 @@ export default function() {
             .xDomain(model.viewDomain)
             .yDomain([0, 100])
             .period(model.period)
-            .minimumPeriods(model.minimumPeriods);
+            .minimumVisiblePeriods(model.minimumVisiblePeriods);
 
         selection.datum(model.data)
             .call(chart);

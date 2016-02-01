@@ -1,10 +1,10 @@
-export default function(initialProduct, initialPeriod, minimumPeriods) {
+export default function(initialProduct, initialPeriod, minimumVisiblePeriods) {
     return {
         data: [],
         viewDomain: [],
         trackingLatest: true,
         product: initialProduct,
         period: initialPeriod,
-        minimumPeriods: minimumPeriods
+        minimumVisiblePeriods: minimumVisiblePeriods
     };
 }

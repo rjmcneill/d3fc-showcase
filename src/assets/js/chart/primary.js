@@ -212,11 +212,12 @@ export default function() {
         selection.call(primaryChart);
 
         var zoom = zoomBehavior(zoomWidth)
-          .scale(xScale)
-          .trackingLatest(model.trackingLatest)
-          .on('zoom', function(domain) {
-              dispatch[event.viewChange](domain);
-          });
+            .scale(xScale)
+            .trackingLatest(model.trackingLatest)
+            .minimumVisiblePeriods(model.minimumVisiblePeriods)
+            .on('zoom', function(domain) {
+                dispatch[event.viewChange](domain);
+            });
 
         selection.select('.plot-area')
           .call(zoom);

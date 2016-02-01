@@ -4,28 +4,27 @@ import fc from 'd3fc';
 export default function(domain, data, centerDate) {
     var dataExtent = fc.util.extent()
         .fields('date')(data);
-    var newBrush = [];
+    var centeredDomain = [];
     var overShoot = 0;
 
-    if (domain[0].getTime() > domain[1].getTime()) {
-        var tempDomain = domain[0];
-        domain[0] = domain[1];
-        domain[1] = tempDomain;
+    // If the left and right hand limits of the domain are not in chronological order, reorder them
+    if (domain[0] > domain[1]) {
+        domain.reverse();
     }
 
     var distanceAroundCenterDate = (domain[1].getTime() - domain[0].getTime()) / 2;
-    newBrush[0] = new Date(centerDate.getTime() - distanceAroundCenterDate);
-    newBrush[1] = new Date(centerDate.getTime() + distanceAroundCenterDate);
+    centeredDomain[0] = new Date(centerDate.getTime() - distanceAroundCenterDate);
+    centeredDomain[1] = new Date(centerDate.getTime() + distanceAroundCenterDate);
 
-    if (newBrush[0].getTime() < dataExtent[0].getTime()) {
+    if (centeredDomain[0] < dataExtent[0]) {
         overShoot = dataExtent[0].getTime() - domain[0].getTime();
-        newBrush[0] = dataExtent[0];
-        newBrush[1] = new Date(domain[1].getTime() + overShoot);
-    } else if (newBrush[1].getTime() > dataExtent[1].getTime()) {
+        centeredDomain[0] = dataExtent[0];
+        centeredDomain[1] = new Date(domain[1].getTime() + overShoot);
+    } else if (centeredDomain[1] > dataExtent[1]) {
         overShoot = domain[1].getTime() - dataExtent[1].getTime();
-        newBrush[0] = new Date(domain[0].getTime() - overShoot);
-        newBrush[1] = dataExtent[1];
+        centeredDomain[0] = new Date(domain[0].getTime() - overShoot);
+        centeredDomain[1] = dataExtent[1];
     }
 
-    return newBrush;
+    return centeredDomain;
 }

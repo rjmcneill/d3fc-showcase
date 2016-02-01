@@ -130,46 +130,29 @@ export default function() {
             .call(brushMask);
     }
 
-    function extentLessThanMinimumPeriods(minimumPeriodMilliSeconds) {
-        return (brush.extent()[1][0].getTime() - brush.extent()[0][0].getTime() >=
-            minimumPeriodMilliSeconds);
-    }
+    function setBrushExtentToMinPeriods(brushExtent, originalBrushExtent, minimumPeriodMilliseconds) {
+        var leftHandleMoved = brushExtent[0][0].getTime() !== originalBrushExtent[0].getTime();
+        var rightHandleMoved = brushExtent[1][0].getTime() !== originalBrushExtent[1].getTime();
 
-    function setToMinPeriods(minimumPeriodMilliSeconds) {
-        var newBrush = [];
-        var overShoot = 0;
-
-        var leftHandleMoved =
-            brush.extent()[0][0].getTime() > originalExtent[0][0].getTime() &&
-            brush.extent()[1][0].getTime() === originalExtent[1][0].getTime();
-
-        var rightHandleMoved =
-            brush.extent()[1][0].getTime() < originalExtent[1][0].getTime() &&
-            brush.extent()[0][0].getTime() === originalExtent[0][0].getTime();
-
-        if (leftHandleMoved) {
-            newBrush[0] = new Date(brush.extent()[1][0].getTime() - minimumPeriodMilliSeconds);
-            newBrush[1] = brush.extent()[1][0];
-        } else if (rightHandleMoved) {
-            newBrush[0] = brush.extent()[0][0];
-            newBrush[1] = new Date(brush.extent()[0][0].getTime() + minimumPeriodMilliSeconds);
+        if (leftHandleMoved && !rightHandleMoved) {
+            return [new Date(brushExtent[1][0].getTime() - minimumPeriodMilliseconds),
+                brushExtent[1][0]];
+        } else if (rightHandleMoved && !leftHandleMoved) {
+            return [brushExtent[0][0],
+                new Date(brushExtent[0][0].getTime() + minimumPeriodMilliseconds)];
         } else {
-            var centrePoint = (brush.extent()[0][0].getTime() +
-                brush.extent()[1][0].getTime()) / 2;
-            var minPeriodDistance = minimumPeriodMilliSeconds / 2;
+            var centrePoint = (brushExtent[0][0].getTime() + brushExtent[1][0].getTime()) / 2;
 
-            newBrush[0] = new Date(centrePoint - minPeriodDistance);
-            newBrush[1] = new Date(centrePoint + minPeriodDistance);
+            return [new Date(centrePoint - minimumPeriodMilliseconds / 2),
+                new Date(centrePoint + minimumPeriodMilliseconds / 2)];
         }
-
-        return newBrush;
     }
 
-    function nav(selection, period) {
+    function nav(selection) {
         var model = selection.datum();
 
-        var minimumPeriodMilliSeconds = model.period.seconds *
-                    selection.datum().minimumPeriods * 1000;
+        var minimumPeriodMilliseconds = model.period.seconds *
+            model.minimumVisiblePeriods * 1000;
 
         createDefs(selection, model.data);
 
@@ -181,17 +164,13 @@ export default function() {
         var yExtent = fc.util.extent()
           .fields(['low', 'high']).pad(yExtentPadding)(filteredData);
 
-        var brushHide = false;
-
         navChart.xDomain(fc.util.extent().fields('date')(model.data))
           .yDomain(yExtent);
 
         brush.on('brushstart', function() {
-            d3.event.sourceEvent.stopPropagation();
-            originalExtent = brush.extent();
+            originalExtent = [brush.extent()[0][0], brush.extent()[1][0]];
         })
         .on('brush', function() {
-            d3.event.sourceEvent.stopPropagation();
             var brushExtentIsEmpty = xEmpty(brush);
 
             // Hide the bar if the extent is empty
@@ -200,17 +179,18 @@ export default function() {
                 dispatch[event.viewChange]([brush.extent()[0][0],
                     brush.extent()[1][0]]);
             }
-        }).on('brushend', function() {
-            d3.event.sourceEvent.stopPropagation();
+        })
+        .on('brushend', function() {
             var brushExtentIsEmpty = xEmpty(brush);
             var minimumBrush;
+            var brushExtentDelta = brush.extent()[1][0].getTime() - brush.extent()[0][0].getTime();
             setHide(selection, false);
 
             if (brushExtentIsEmpty) {
-                dispatch[event.viewChange](centerOnDate([originalExtent[0][0],
-                    originalExtent[1][0]], model.data, brush.extent()[0][0]));
-            } else if (!extentLessThanMinimumPeriods(minimumPeriodMilliSeconds)) {
-                minimumBrush = setToMinPeriods(minimumPeriodMilliSeconds);
+                dispatch[event.viewChange](centerOnDate(originalExtent,
+                    model.data, brush.extent()[0][0]));
+            } else if (!(brushExtentDelta >= minimumPeriodMilliseconds)) {
+                minimumBrush = setBrushExtentToMinPeriods(brush.extent(), originalExtent, minimumPeriodMilliseconds);
                 var centreDate = new Date((minimumBrush[1].getTime() + minimumBrush[0].getTime()) / 2);
 
                 dispatch[event.viewChange](centerOnDate(minimumBrush,
@@ -223,12 +203,13 @@ export default function() {
 
         // Allow to zoom using mouse, but disable panning
         var zoom = zoomBehavior(layoutWidth)
-          .scale(viewScale)
-          .trackingLatest(model.trackingLatest)
-          .allowPan(false)
-          .on('zoom', function(domain) {
-              dispatch[event.viewChange](domain);
-          });
+            .scale(viewScale)
+            .trackingLatest(model.trackingLatest)
+            .minimumVisiblePeriods(model.minimumVisiblePeriods)
+            .allowPan(false)
+            .on('zoom', function(domain) {
+                dispatch[event.viewChange](domain);
+            });
 
         selection.select('.plot-area')
           .call(zoom);

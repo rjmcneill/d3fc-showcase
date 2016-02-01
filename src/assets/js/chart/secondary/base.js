@@ -11,7 +11,7 @@ export default function() {
     var trackingLatest = true;
     var yAxisWidth = 60;
     var period;
-    var minimumPeriods;
+    var minimumVisiblePeriods;
 
     var multi = fc.series.multi();
     var chart = fc.chart.cartesian(xScale, yScale)
@@ -34,6 +34,7 @@ export default function() {
             var zoom = zoomBehavior(zoomWidth)
                 .scale(xScale)
                 .trackingLatest(trackingLatest)
+                .minimumVisiblePeriods(minimumVisiblePeriods)
                 .on('zoom', function(domain) {
                     dispatch[event.viewChange](domain);
                 });
@@ -41,8 +42,7 @@ export default function() {
             container.select('.plot-area-container')
                 .datum({
                     data: selection.datum(),
-                    period: period,
-                    minimumPeriods: minimumPeriods
+                    period: period
                 })
               .call(zoom);
         });
@@ -64,11 +64,11 @@ export default function() {
         return secondary;
     };
 
-    secondary.minimumPeriods = function(x) {
+    secondary.minimumVisiblePeriods = function(x) {
         if (!arguments.length) {
-            return minimumPeriods;
+            return minimumVisiblePeriods;
         }
-        minimumPeriods = x;
+        minimumVisiblePeriods = x;
         return secondary;
     };
 

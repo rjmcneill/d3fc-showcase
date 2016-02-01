@@ -1,9 +1,9 @@
-export default function(initialPeriod, minPeriods) {
+export default function(initialPeriod, minimumVisiblePeriods) {
     return {
         data: [],
         viewDomain: [],
         period: initialPeriod,
-        minimumPeriods: minPeriods,
+        minimumVisiblePeriods: minimumVisiblePeriods,
         trackingLatest: true
     };
 }
