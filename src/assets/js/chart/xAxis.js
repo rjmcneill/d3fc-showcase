@@ -22,8 +22,8 @@ export default function() {
     }
 
     function calculateTickValues(model, numberOfTicks) {
-        var lowerRoundedViewDomain = domain.roundTimestampUp(model.viewDomain[0].getTime(), model.period.seconds * 1000);
-        var upperRoundedViewDomain = domain.roundTimestampDown(model.viewDomain[1].getTime(), model.period.seconds * 1000);
+        var lowerRoundedViewDomain = model.period.d3TimeInterval.unit.ceil(model.viewDomain[0]).getTime();
+        var upperRoundedViewDomain = model.period.d3TimeInterval.unit.floor(model.viewDomain[1]).getTime();
         var viewDomainDifference = (upperRoundedViewDomain - lowerRoundedViewDomain);
         var zoomLevelChanged;
 
@@ -31,16 +31,16 @@ export default function() {
             zoomLevelChanged = (originalDomain[1].getTime() - originalDomain[0].getTime() !== model.viewDomain[1].getTime() - model.viewDomain[0].getTime());
             if (zoomLevelChanged || containerWidthChanged) {
                 // If they have zoomed, recalculate the tick spacing
-                tickSpacing = domain.roundTimestampUp((viewDomainDifference / numberOfTicks), model.period.seconds * 1000);
+                tickSpacing = util.domain.roundTimestampUp((viewDomainDifference / numberOfTicks), model.period.seconds * 1000);
                 containerWidthChanged = false;
             }
         }
 
         if (!tickValues.length) {
-            tickSpacing = domain.roundTimestampUp((viewDomainDifference / numberOfTicks), model.period.seconds * 1000);
+            tickSpacing = util.domain.roundTimestampUp((viewDomainDifference / numberOfTicks), model.period.seconds * 1000);
         }
 
-        var lowerRounded = domain.roundTimestampDown(lowerRoundedViewDomain, tickSpacing);
+        var lowerRounded = util.domain.roundTimestampDown(lowerRoundedViewDomain, tickSpacing);
         var viewDomainChanged = false;
 
         if (originalDomain) {
@@ -51,8 +51,7 @@ export default function() {
         if (tickValues.length !== numberOfTicks || viewDomainChanged || zoomLevelChanged) {
             tickValues = [];
             for (var i = 0; i <= numberOfTicks; i++) {
-                var tickTimestamp = domain.roundTimestampDown((lowerRounded + (tickSpacing * i)), model.period.seconds);
-                var tickDate = new Date(tickTimestamp);
+                var tickDate = (model.period.d3TimeInterval.unit.ceil(lowerRounded + (tickSpacing * i)));
                 tickValues.push(tickDate);
             }
         }
@@ -79,8 +78,8 @@ export default function() {
     }
 
     function adaptAxisFormat(model, numberOfTicks) {
-        var lowerRoundedViewDomain = domain.roundTimestampUp(model.viewDomain[0].getTime(), model.period.seconds * 1000);
-        var upperRoundedViewDomain = domain.roundTimestampDown(model.viewDomain[1].getTime(), model.period.seconds * 1000);
+        var lowerRoundedViewDomain = model.period.d3TimeInterval.unit.ceil(model.viewDomain[0]).getTime();
+        var upperRoundedViewDomain = model.period.d3TimeInterval.unit.floor(model.viewDomain[1]).getTime();
         var viewDomainDifference = (upperRoundedViewDomain - lowerRoundedViewDomain) / 1000;
 
         var minimumPeriod = model.period.seconds;
@@ -143,10 +142,10 @@ export default function() {
     function xAxisChart(selection) {
         var model = selection.datum();
         xScale.domain(model.viewDomain);
-
         xScale.discontinuityProvider(model.discontinuityProvider);
 
         var numberOfTicks = calculateNumberOfTicks(model);
+        xScale.domain(model.viewDomain);
         calculateTickValues(model, numberOfTicks);
         adaptAxisFormat(model, numberOfTicks);
         selection.call(xAxis);
