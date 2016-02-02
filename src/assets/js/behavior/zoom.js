@@ -49,8 +49,11 @@ export default function(containerWidth) {
                 var min = scale(xExtent[0]);
                 var max = scale(xExtent[1]);
 
-                var minimumPeriodMilliseconds = selection.datum().period.seconds *
-                    minimumVisiblePeriods * 1000;
+                var modelMinimumMilliseconds = selection.datum().period.seconds *
+                    selection.datum().minimumVisiblePeriods * 1000;
+                var xExtentMilliseconds = util.domain.domainMilliseconds(xExtent);
+
+                var minimumPeriodMilliseconds = xExtentMilliseconds < modelMinimumMilliseconds ? xExtentMilliseconds : modelMinimumMilliseconds;
 
                 var maxDomainViewed = controlZoom([min, max - containerWidth]);
                 var panningRestriction = controlPan([min, max - containerWidth]);
@@ -66,10 +69,12 @@ export default function(containerWidth) {
                         domain = xExtent;
                     } else if (zoomed && trackingLatest) {
                         domain = util.domain.moveToLatest(domain,
-                            selection.datum().data);
+                            selection.datum().data,
+                            selection.datum().minimumVisiblePeriods,
+                            selection.datum().period.seconds);
                     }
 
-                    if ((domain[1].getTime() - domain[0].getTime()) >= minimumPeriodMilliseconds) {
+                    if (util.domain.domainMilliseconds(domain) >= modelMinimumMilliseconds) {
                         dispatch.zoom(domain);
                     } else {
                         // Ensure the user can't zoom-in infinitely, causing

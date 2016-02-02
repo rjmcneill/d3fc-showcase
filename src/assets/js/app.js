@@ -234,7 +234,8 @@ export default function() {
         var data = model.primaryChart.data;
         var dataDomain = fc.util.extent()
             .fields('date')(data);
-        var navTimeDomain = util.domain.moveToLatest(dataDomain, data, proportionOfDataToDisplayByDefault);
+        var navTimeDomain = util.domain.moveToLatest(dataDomain, data,
+            model.minimumVisiblePeriods, model.primaryChart.period.seconds, proportionOfDataToDisplayByDefault);
         onViewChange(navTimeDomain);
     }
 
@@ -300,7 +301,9 @@ export default function() {
                 if (model.primaryChart.trackingLatest) {
                     var newDomain = util.domain.moveToLatest(
                         model.primaryChart.viewDomain,
-                        model.primaryChart.data);
+                        model.primaryChart.data,
+                        model.minimumVisiblePeriods,
+                        model.primaryChart.period.seconds);
                     onViewChange(newDomain);
                 }
             })

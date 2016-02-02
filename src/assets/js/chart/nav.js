@@ -3,7 +3,6 @@ import fc from 'd3fc';
 import util from '../util/util';
 import event from '../event';
 import zoomBehavior from '../behavior/zoom';
-import centerOnDate from '../util/domain/centerOnDate';
 
 export default function() {
     var navHeight = 100; // Also maintain in variables.less
@@ -151,9 +150,6 @@ export default function() {
     function nav(selection) {
         var model = selection.datum();
 
-        var minimumPeriodMilliseconds = model.period.seconds *
-            model.minimumVisiblePeriods * 1000;
-
         createDefs(selection, model.data);
 
         viewScale.domain(model.viewDomain);
@@ -163,9 +159,17 @@ export default function() {
           model.data);
         var yExtent = fc.util.extent()
           .fields(['low', 'high']).pad(yExtentPadding)(filteredData);
+        var xExtent = fc.util.extent()
+          .fields('date')(model.data);
 
-        navChart.xDomain(fc.util.extent().fields('date')(model.data))
+        navChart.xDomain(xExtent)
           .yDomain(yExtent);
+
+        var modelMinimumMilliseconds = model.period.seconds *
+            model.minimumVisiblePeriods * 1000;
+        var xExtentMilliseconds = util.domain.domainMilliseconds(xExtent);
+
+        var minimumPeriodMilliseconds = xExtentMilliseconds < modelMinimumMilliseconds ? xExtentMilliseconds : modelMinimumMilliseconds;
 
         brush.on('brushstart', function() {
             originalExtent = [brush.extent()[0][0], brush.extent()[1][0]];
@@ -187,13 +191,13 @@ export default function() {
             setHide(selection, false);
 
             if (brushExtentIsEmpty) {
-                dispatch[event.viewChange](centerOnDate(originalExtent,
+                dispatch[event.viewChange](util.domain.centerOnDate(originalExtent,
                     model.data, brush.extent()[0][0]));
-            } else if (!(brushExtentDelta >= minimumPeriodMilliseconds)) {
+            } else if (brushExtentDelta < minimumPeriodMilliseconds) {
                 minimumBrush = setBrushExtentToMinPeriods(brush.extent(), originalExtent, minimumPeriodMilliseconds);
                 var centreDate = new Date((minimumBrush[1].getTime() + minimumBrush[0].getTime()) / 2);
 
-                dispatch[event.viewChange](centerOnDate(minimumBrush,
+                dispatch[event.viewChange](util.domain.centerOnDate(minimumBrush,
                     model.data, centreDate));
             }
         });
