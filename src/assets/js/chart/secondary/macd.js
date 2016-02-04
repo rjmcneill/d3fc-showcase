@@ -1,6 +1,5 @@
 import d3 from 'd3';
 import fc from 'd3fc';
-import util from '../../util/util';
 import event from '../../event';
 import base from './base';
 
@@ -14,7 +13,7 @@ export default function() {
 
     var chart = base()
       .series([zeroLine, renderer])
-      .yTicks(5)
+      .yTicks(3)
       .mapping(function(series) {
           return series === zeroLine ? [0] : this;
       })

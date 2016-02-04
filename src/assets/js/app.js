@@ -34,10 +34,30 @@ export default function() {
         <div class="row primary-row"> \
             <div id="charts" class="col-md-12"> \
                 <div id="charts-container"> \
-                    <svg id="primary-container"></svg> \
-                    <svg class="secondary-container"></svg> \
-                    <svg class="secondary-container"></svg> \
-                    <svg class="secondary-container"></svg> \
+                    <div id="primary-chart-container"> \
+                        <svg id="primary-container"></svg> \
+                        <div class="y-axis-row"> \
+                            <svg id="y-axis-container"></svg> \
+                        </div> \
+                    </div> \
+                    <div class="secondary-chart-container"> \
+                        <svg class="secondary-container"></svg> \
+                        <div class="y-axis-row"> \
+                            <svg id="y-axis-container"></svg> \
+                        </div> \
+                    </div> \
+                    <div class="secondary-chart-container"> \
+                        <svg class="secondary-container"></svg> \
+                        <div class="y-axis-row"> \
+                            <svg id="y-axis-container"></svg> \
+                        </div> \
+                    </div> \
+                    <div class="secondary-chart-container"> \
+                        <svg class="secondary-container"></svg> \
+                        <div class="y-axis-row"> \
+                            <svg id="y-axis-container"></svg> \
+                        </div> \
+                    </div> \
                     <div class="x-axis-row"> \
                         <svg id="x-axis-container"></svg> \
                     </div> \
@@ -127,8 +147,17 @@ export default function() {
             .filter(function(d, i) { return i < charts.secondaries.length; })
             .each(function(d, i) {
                 d3.select(this)
-                    .attr('class', 'secondary-container secondary-' + charts.secondaries[i].valueString)
-                    .call(charts.secondaries[i].option);
+// <<<<<<< 306d9a98e0a8123db2951e4b6256fca94c30334b
+//                     .attr('class', 'secondary-container secondary-' + charts.secondaries[i].valueString)
+//                     .call(charts.secondaries[i].option);
+// =======
+//                     .select('.secondary-container')
+//                     .attr('class', 'secondary-container ' + charts.secondaries[i].valueString);
+//                 d3.select(this).call(charts.secondaries[i].option);
+// >>>>>>> Moved yAxis to separate component
+                    .select('.secondary-container')
+                    .attr('class', 'secondary-container secondary-' + charts.secondaries[i].valueString);
+                d3.select(this).call(charts.secondaries[i].option);
             });
 
         containers.xAxis.datum(model.xAxis)
@@ -424,7 +453,7 @@ export default function() {
     function updateSecondaryCharts() {
         updateSecondaryChartModels();
         // TODO: Remove .remove! (could a secondary chart group component manage this?).
-        containers.secondaries.selectAll('*').remove();
+        containers.secondaries.selectAll('.secondary-container').selectAll('*').remove();
         updateLayout();
     }
 
@@ -545,12 +574,13 @@ export default function() {
         var chartsAndOverlayContainer = appContainer.select('#charts');
         var chartsContainer = appContainer.select('#charts-container');
         var overlayContainer = appContainer.select('#overlay');
+
         containers = {
             app: appContainer,
             charts: chartsContainer,
             chartsAndOverlay: chartsAndOverlayContainer,
-            primary: chartsContainer.select('#primary-container'),
-            secondaries: chartsContainer.selectAll('.secondary-container'),
+            primary: chartsContainer.select('#primary-chart-container'),
+            secondaries: chartsContainer.selectAll('.secondary-chart-container'),
             xAxis: chartsContainer.select('#x-axis-container'),
             navbar: chartsContainer.select('#navbar-container'),
             overlay: overlayContainer,

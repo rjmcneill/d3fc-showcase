@@ -1,6 +1,5 @@
 import d3 from 'd3';
 import fc from 'd3fc';
-import util from '../../util/util';
 import event from '../../event';
 import base from './base';
 
@@ -12,7 +11,7 @@ export default function() {
 
     var chart = base()
       .series([volumeBar])
-      .yTicks(4)
+      .yTicks(3)
       .on(event.viewChange, function(domain) {
           dispatch[event.viewChange](domain);
       });
@@ -25,6 +24,7 @@ export default function() {
             if (paddedYExtent[0] < 0) {
                 paddedYExtent[0] = 0;
             }
+
             chart.yTickFormat(model.product.volumeFormat)
                 .trackingLatest(model.trackingLatest)
                 .xDomain(model.viewDomain)
