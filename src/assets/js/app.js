@@ -49,7 +49,9 @@ export default function() {
                                 <div id="series-dropdown" class="dropdown selector-dropdown"></div> \
                                 <div id="indicator-dropdown" class="dropdown selector-dropdown"></div> \
                             </div> \
-                            <div id="legend"></div> \
+                            <div id="legend"> \
+                                <svg id="tooltip"></svg> \
+                            </div> \
                         </div> \
                         <div id="overlay-primary-bottom"> \
                             <div class="edit-indicator-container"></div> \
