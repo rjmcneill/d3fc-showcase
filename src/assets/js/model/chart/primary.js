@@ -6,6 +6,7 @@ export default function(initialProduct, initialDiscontinuityProvider) {
     var model = {
         data: [],
         visibleData: [],
+        crosshairData: null,
         trackingLatest: true,
         viewDomain: [],
         selectorsChanged: true,

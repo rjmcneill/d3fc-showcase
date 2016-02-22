@@ -2,6 +2,7 @@ import d3 from 'd3';
 import fc from 'd3fc';
 import util from '../../util/util';
 import event from '../../event';
+// import util from '../../util/util';
 import zoomBehavior from '../../behavior/zoom';
 
 export default function() {
@@ -57,7 +58,7 @@ export default function() {
     };
 
     d3.rebind(secondary, dispatch, 'on');
-    d3.rebind(secondary, multi, 'series', 'mapping', 'decorate');
+    d3.rebind(secondary, multi, 'series', 'mapping', 'decorate', 'key');
     d3.rebind(secondary, chart, 'yTickValues', 'yTickFormat', 'yTicks', 'xDomain', 'yDomain');
 
     secondary.dimensionChanged = function(container) {

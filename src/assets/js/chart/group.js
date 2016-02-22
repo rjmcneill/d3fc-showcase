@@ -20,7 +20,8 @@ export default function() {
         .on(event.crosshairChange, dispatch[event.crosshairChange]);
 
     var secondaryCharts = multiChart()
-        .on(event.viewChange, dispatch[event.viewChange]);
+        .on(event.viewChange, dispatch[event.viewChange])
+        .on(event.crosshairChange, dispatch[event.crosshairChange]);
 
     var xAxis = xAxisChart();
 
