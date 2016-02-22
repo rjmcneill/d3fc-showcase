@@ -53,7 +53,7 @@ export default function() {
             dispatch[event.viewChange](domain);
         });
 
-    function bandCrosshair(selection, model) {
+    function bandCrosshair(model) {
         var root = function(d) { return d.macd; };
         var mapFunction = function(d, i) { return xScale(xValue(d, i)); };
         var barWidth = renderer.barWidth();
@@ -99,7 +99,7 @@ export default function() {
         algorithm(model.data);
 
         crosshair.snap(fc.util.seriesPointSnapXOnly(macdSeries, model.data));
-        bandCrosshair(selection, model);
+        bandCrosshair(model);
 
         var paddedYExtent = fc.util.extent()
             .fields('macd')

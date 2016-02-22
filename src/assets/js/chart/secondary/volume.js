@@ -56,7 +56,7 @@ export default function() {
         volumeSeries.yValue = volumeBar.yValue;
     }
 
-    function bandCrosshair(selection, model) {
+    function bandCrosshair(model) {
         var mapFunction = function(d, i) { return xScale(xValue(d, i)); };
         var barWidth = volumeBar.barWidth();
         var xValue = volumeBar.xValue();
@@ -85,7 +85,7 @@ export default function() {
             }
 
             crosshair.snap(fc.util.seriesPointSnapXOnly(volumeSeries, model.data));
-            bandCrosshair(selection, model);
+            bandCrosshair(model);
 
             var paddedYExtent = fc.util.extent()
                 .fields('volume')
