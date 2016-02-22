@@ -2,7 +2,6 @@ import d3 from 'd3';
 import fc from 'd3fc';
 import util from '../../util/util';
 import event from '../../event';
-// import util from '../../util/util';
 import zoomBehavior from '../../behavior/zoom';
 
 export default function() {

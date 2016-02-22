@@ -1,5 +1,6 @@
 import d3 from 'd3';
 import fc from 'd3fc';
+import jquery from 'jquery';
 import util from '../../util/util';
 import event from '../../event';
 import base from './base';
@@ -73,18 +74,31 @@ export default function() {
         });
     }
 
+    var initialised = false;
+    var macdSeries;
+
+    function initialiseSeries(primarySeries) {
+        // Initialise the series to allow the secondaries to snap correctly
+        // This is needed to ensure we can snap to data before the bar chart
+        // part of the macd indicator starts.
+        macdSeries = jquery.extend({}, primarySeries);
+        macdSeries.xScale = renderer.xScale;
+        macdSeries.yScale = renderer.yScale;
+        macdSeries.xValue = renderer.xValue;
+        macdSeries.yValue = renderer.yValue;
+    }
+
     function macd(selection) {
         var model = selection.datum();
 
-        // Adjust the primary series to allow the secondaries to snap correctly
-        model.primarySeries.option.xScale = renderer.xScale;
-        model.primarySeries.option.yScale = renderer.yScale;
-        model.primarySeries.option.xValue = renderer.xValue;
-        model.primarySeries.option.yValue = renderer.yValue;
+        if (!initialised) {
+            initialiseSeries(model.primarySeries.option);
+            initialised = true;
+        }
 
         algorithm(model.data);
 
-        crosshair.snap(fc.util.seriesPointSnapXOnly(model.primarySeries.option, model.data));
+        crosshair.snap(fc.util.seriesPointSnapXOnly(macdSeries, model.data));
         bandCrosshair(selection, model);
 
         var paddedYExtent = fc.util.extent()

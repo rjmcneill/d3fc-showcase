@@ -42,16 +42,25 @@ export default function() {
             dispatch[event.viewChange](domain);
         });
 
+    var initialised = false;
+    var rsiSeries = {};
+
+    function initialiseSeries() {
+        // Initialise the series to allow the secondaries to snap correctly
+        rsiSeries.xScale = renderer.xScale;
+        rsiSeries.yScale = renderer.yScale;
+        rsiSeries.xValue = renderer.xValue;
+        rsiSeries.yValue = renderer.yValue;
+    }
+
     function rsi(selection) {
         var model = selection.datum();
 
         // Adjust the primary series to allow the secondaries to snap correctly
-        var rsiSeries = {
-            xScale: renderer.xScale,
-            yScale: renderer.yScale,
-            xValue: renderer.xValue,
-            yValue: renderer.yValue
-        };
+        if (!initialised) {
+            initialiseSeries();
+            initialised = true;
+        }
 
         crosshair.snap(fc.util.seriesPointSnapXOnly(rsiSeries, model.data));
         algorithm(model.data);

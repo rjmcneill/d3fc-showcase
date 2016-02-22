@@ -45,6 +45,17 @@ export default function() {
             dispatch[event.viewChange](domain);
         });
 
+    var initialised = false;
+    var volumeSeries = {};
+
+    function initialiseSeries() {
+        // Initialise the series to allow the secondaries to snap correctly
+        volumeSeries.xScale = volumeBar.xScale;
+        volumeSeries.yScale = volumeBar.yScale;
+        volumeSeries.xValue = volumeBar.xValue;
+        volumeSeries.yValue = volumeBar.yValue;
+    }
+
     function bandCrosshair(selection, model) {
         var mapFunction = function(d, i) { return xScale(xValue(d, i)); };
         var barWidth = volumeBar.barWidth();
@@ -68,13 +79,12 @@ export default function() {
     function volume(selection) {
         selection.each(function(model) {
 
-            // Adjust the primary series to allow the secondaries to snap correctly
-            model.primarySeries.option.xScale = volumeBar.xScale;
-            model.primarySeries.option.yScale = volumeBar.yScale;
-            model.primarySeries.option.xValue = volumeBar.xValue;
-            model.primarySeries.option.yValue = volumeBar.yValue;
+            if (!initialised) {
+                initialiseSeries();
+                initialised = true;
+            }
 
-            crosshair.snap(fc.util.seriesPointSnapXOnly(model.primarySeries.option, model.data));
+            crosshair.snap(fc.util.seriesPointSnapXOnly(volumeSeries, model.data));
             bandCrosshair(selection, model);
 
             var paddedYExtent = fc.util.extent()
