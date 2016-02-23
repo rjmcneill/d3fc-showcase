@@ -2,7 +2,6 @@ import d3 from 'd3';
 import fc from 'd3fc';
 import util from '../util/util';
 
-
 export default function() {
     var xScale = fc.scale.dateTime();
     var xAxis = d3.svg.axis()
@@ -53,11 +52,11 @@ export default function() {
         }
 
         if (!tickValues.length || zoomLevelChanged || containerWidthChanged) {
-            tickSpacing = domain.roundTimestampUp((viewDomainDifference / numberOfTicks), model.period.seconds * 1000);
+            tickSpacing = util.domain.roundTimestampUp((viewDomainDifference / numberOfTicks), model.period.seconds * 1000);
             containerWidthChanged = false;
         }
 
-        var lowerRounded = domain.roundTimestampDown(lowerRoundedViewDomain, tickSpacing);
+        var lowerRounded = util.domain.roundTimestampDown(lowerRoundedViewDomain, tickSpacing);
 
         if (tickValues.length !== numberOfTicks || viewDomainChanged || zoomLevelChanged) {
             tickValues = [];
@@ -68,11 +67,12 @@ export default function() {
         }
 
         tickValues = removeTickValuesOutsideDomain(model.viewDomain, tickValues);
-        xAxis.tickValues(tickValues);
 
         if (viewDomainChanged || !originalDomain) {
             originalDomain = model.viewDomain;
         }
+
+        return tickValues;
     }
 
     function adaptAxisFormat(model, numberOfTicks) {
@@ -81,50 +81,24 @@ export default function() {
         var viewDomainDifference = (upperRoundedViewDomain - lowerRoundedViewDomain) / 1000;
 
         var minimumPeriod = model.period.seconds;
-        var tickFormat;
+        var timePeriods = [3600, 86400, 2592000];
+        var tickFormats = [d3.time.format('%_I:%M %p'), d3.time.format('%a %_I %p'), d3.time.format('%b %e'), d3.time.format('%B %Y')];
 
-        var yearInSeconds = 31557600;
-        var monthInSeconds = 2592000;
-        var dayInSeconds = 86400;
-        var hourInSeconds = 3600;
-
-        // var monthsDifference = Math.floor(viewDomainDifference / monthInSeconds);
-        // var daysDifference = Math.floor(viewDomainDifference / dayInSeconds);
-        // var hoursDifference = Math.floor(viewDomainDifference / hourInSeconds);
-
-        if (viewDomainDifference < hourInSeconds) {
-            tickFormat = d3.time.format('%_I:%M %p');
-        } else if (viewDomainDifference < dayInSeconds) {
-            if (minimumPeriod < hourInSeconds && (Math.floor(viewDomainDifference / hourInSeconds) < numberOfTicks)) {
-                tickFormat = d3.time.format('%_I:%M %p');
-            } else {
-                tickFormat = d3.time.format('%a %_I %p');
+        for (var i = 0; i < timePeriods.length; i++) {
+            if (viewDomainDifference < timePeriods[i] ||
+                ((i === timePeriods.length - 1 || minimumPeriod < timePeriods[i]) && Math.floor(viewDomainDifference / timePeriods[i]) < numberOfTicks)) {
+                return tickFormats[i];
             }
-        } else if (viewDomainDifference < monthInSeconds) {
-            if (minimumPeriod < dayInSeconds && (Math.floor(viewDomainDifference / dayInSeconds) < numberOfTicks)) {
-                tickFormat = d3.time.format('%a %_I %p');
-            } else {
-                tickFormat = d3.time.format('%b %e');
-            }
-        } else if (viewDomainDifference < yearInSeconds) {
-            if (Math.floor(viewDomainDifference / monthInSeconds) >= numberOfTicks) {
-                tickFormat = d3.time.format('%B');
-            } else {
-                tickFormat = d3.time.format('%b %e');
-            }
-        } else {
-            tickFormat = d3.time.format('%B');
         }
-
-        xAxis.tickFormat(tickFormat);
+        return tickFormats[tickFormats.length - 1];
     }
 
     function xAxisChart(selection) {
         var model = selection.datum();
         var numberOfTicks = calculateNumberOfTicks();
         xScale.domain(model.viewDomain);
-        calculateTickValues(model, numberOfTicks);
-        adaptAxisFormat(model, numberOfTicks);
+        xAxis.tickValues(calculateTickValues(model, numberOfTicks));
+        xAxis.tickFormat(adaptAxisFormat(model, numberOfTicks));
         selection.call(xAxis);
     }
 
