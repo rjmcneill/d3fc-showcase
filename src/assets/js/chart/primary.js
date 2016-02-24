@@ -51,20 +51,8 @@ export default function() {
     var zoomWidth;
 
     var crosshairData = [];
-    var crosshair = fc.tool.crosshair()
-      .xLabel('')
-      .yLabel('')
-      .on('trackingmove', function(updatedCrosshairData) {
-          if (updatedCrosshairData.length > 0) {
-              dispatch.crosshairChange(updatedCrosshairData[0].datum);
-          } else {
-              dispatch.crosshairChange(undefined);
-          }
-      })
-      .on('trackingend', function() {
-          dispatch.crosshairChange(undefined);
-      });
-    crosshair.id = util.uid();
+    var crosshair = util.crosshair()
+        .on(event.crosshairChange, dispatch.crosshairChange);
 
     var gridlines = fc.annotation.gridline()
       .xTicks(0);

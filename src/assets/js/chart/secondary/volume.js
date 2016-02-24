@@ -11,24 +11,8 @@ export default function() {
         .yValue(function(d) { return d.volume; });
 
     var crosshairData = [];
-    var crosshairDataPoint;
-    var crosshair = fc.tool.crosshair()
-        .xLabel('')
-        .yLabel('')
-        .on('trackingmove', function(updatedCrosshairData) {
-            if (updatedCrosshairData.length > 0) {
-                crosshairDataPoint = updatedCrosshairData[0].datum;
-                dispatch.crosshairChange(updatedCrosshairData[0].datum);
-            } else {
-                crosshairDataPoint = undefined;
-                dispatch.crosshairChange(undefined);
-            }
-        })
-        .on('trackingend', function() {
-            dispatch.crosshairChange(undefined);
-        });
-
-    crosshair.id = util.uid();
+    var crosshair = util.crosshair()
+        .on(event.crosshairChange, dispatch.crosshairChange);
 
     var chart = base()
         .series([volumeBar, crosshair])
