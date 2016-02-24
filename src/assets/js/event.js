@@ -15,5 +15,8 @@ export default {
     primaryChartIndicatorChange: 'primaryChartIndicatorChange',
     secondaryChartChange: 'secondaryChartChange',
     indicatorChange: 'indicatorChange',
-    notificationClose: 'notificationClose'
+    notificationClose: 'notificationClose',
+    navigationStart: 'navigationstart',
+    navigation: 'navigation',
+    navigationEnd: 'navigationend'
 };
