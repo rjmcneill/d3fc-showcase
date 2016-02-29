@@ -6,15 +6,18 @@ export default function() {
     var dataGenerator = fc.data.random.financial(),
         allowedPeriods = [60 * 60 * 24],
         candles,
-        end,
         granularity,
-        product = null;
+        product = null,
+        dateRange = [];
 
     var dataGeneratorAdaptor = function(cb) {
-        end.setHours(0, 0, 0, 0);
         var millisecondsPerDay = 24 * 60 * 60 * 1000;
-        dataGenerator.startDate(new Date(end - (candles - 1) * millisecondsPerDay));
+        var endDate = dateRange.length === 2 ? dateRange[1] : new Date();
+        endDate.setHours(0, 0, 0, 0);
+        var startDate = dateRange.length === 2 ? dateRange[0] : new Date(endDate - (candles - 1) * millisecondsPerDay);
+        candles = dateRange.length === 2 ? Math.ceil((dateRange[1] - dateRange[0]) / millisecondsPerDay) : candles;
 
+        dataGenerator.startDate(startDate);
         var data = dataGenerator(candles);
         cb(null, data);
     };
@@ -27,11 +30,11 @@ export default function() {
         return dataGeneratorAdaptor;
     };
 
-    dataGeneratorAdaptor.end = function(x) {
+    dataGeneratorAdaptor.dateRange = function(x) {
         if (!arguments.length) {
-            return end;
+            return dateRange;
         }
-        end = x;
+        dateRange = x;
         return dataGeneratorAdaptor;
     };
 
@@ -40,8 +43,8 @@ export default function() {
             return granularity;
         }
         if (allowedPeriods.indexOf(x) === -1) {
-            throw new Error('Granularity of ' + x + ' is not supported. '
-             + 'Random Financial Data Generator only supports daily data.');
+            throw new Error('Granularity of ' + x + ' is not supported. ' +
+            'Random Financial Data Generator only supports daily data.');
         }
         granularity = x;
         return dataGeneratorAdaptor;

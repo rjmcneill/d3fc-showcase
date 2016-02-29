@@ -7,7 +7,8 @@ export default function() {
             .database('WIKI')
             .columnNameMap(mapColumnNames),
         granularity,
-        candles;
+        candles,
+        dateRange = [];
 
     // More options are allowed through the API; for now, only support daily and weekly
     var allowedPeriods = d3.map();
@@ -43,8 +44,11 @@ export default function() {
     }
 
     function quandlAdaptor(cb) {
-        var startDate = d3.time.second.offset(historicFeed.end(), -candles * granularity);
+        var endDate = dateRange.length === 2 ? dateRange[1] : new Date();
+        var startDate = dateRange.length === 2 ? dateRange[0] : (d3.time.second.offset(endDate, -candles * granularity));
+
         historicFeed.start(startDate)
+            .end(endDate)
             .collapse(allowedPeriods.get(granularity));
         historicFeed(function(err, data) {
             var normalisedData = normaliseDataDateToStartOfDay(data);
@@ -57,6 +61,14 @@ export default function() {
             return candles;
         }
         candles = x;
+        return quandlAdaptor;
+    };
+
+    quandlAdaptor.dateRange = function(x) {
+        if (!arguments.length) {
+            return dateRange;
+        }
+        dateRange = x;
         return quandlAdaptor;
     };
 

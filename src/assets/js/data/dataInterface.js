@@ -19,7 +19,8 @@ export default function() {
     var source,
         callbackGenerator = callbackInvalidator(),
         candlesOfData = 200,
-        data = [];
+        data = [],
+        dateRange = [];
 
     function invalidate() {
         if (source && source.streamingFeed) {
@@ -65,7 +66,7 @@ export default function() {
 
         var now = new Date();
 
-        source.historicFeed.end(now)
+        source.historicFeed.dateRange(dateRange)
             .candles(candlesOfData)
             .granularity(granularity);
 
@@ -87,6 +88,14 @@ export default function() {
             return candlesOfData;
         }
         candlesOfData = x;
+        return dataInterface;
+    };
+
+    dataInterface.dataDateRange = function(x) {
+        if (!arguments.length) {
+            return dateRange;
+        }
+        dateRange = x;
         return dataInterface;
     };
 

@@ -552,7 +552,8 @@ export default function() {
     });
 
     fc.util.rebind(app, _dataInterface, {
-        periodsOfDataToFetch: 'candlesOfData'
+        periodsOfDataToFetch: 'candlesOfData',
+        dataDateRange: 'dataDateRange'
     });
 
     return app;

@@ -6,11 +6,16 @@ export default function() {
     var rateLimit = 1000;       // The coinbase API has a limit of 1 request per second
 
     var historicFeed = fc.data.feed.coinbase(),
-        candles;
+        candles,
+        dateRange = [];
 
     var coinbaseAdaptor = debounce(function coinbaseAdaptor(cb) {
-        var startDate = d3.time.second.offset(historicFeed.end(), -candles * historicFeed.granularity());
-        historicFeed.start(startDate);
+        var endDate = dateRange.length === 2 ? dateRange[1] : new Date();
+        var startDate = dateRange.length === 2 ? dateRange[0] : (d3.time.second.offset(endDate, -candles * historicFeed.granularity()));
+
+        historicFeed.start(startDate)
+            .end(endDate);
+
         historicFeed(cb);
     }, rateLimit);
 
@@ -19,6 +24,14 @@ export default function() {
             return candles;
         }
         candles = x;
+        return coinbaseAdaptor;
+    };
+
+    coinbaseAdaptor.dateRange = function(x) {
+        if (!arguments.length) {
+            return dateRange;
+        }
+        dateRange = x;
         return coinbaseAdaptor;
     };
 
