@@ -41,7 +41,9 @@ export default function() {
                     </div> \
                     <div id="navbar-row"> \
                         <svg id="navbar-container"></svg> \
-                        <svg id="navbar-reset"></svg> \
+                        <div id="reset-container"> \
+                            <svg id="navbar-reset"></svg> \
+                        </div> \
                     </div> \
                 </div> \
                 <div id="overlay"> \
@@ -101,7 +103,7 @@ export default function() {
         containers.chartsAndOverlay.datum(model.charts)
             .call(charts);
 
-        containers.app.select('#navbar-reset')
+        containers.app.select('#reset-container')
             .datum(model.navReset)
             .call(navReset);
 
