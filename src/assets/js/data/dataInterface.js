@@ -37,7 +37,7 @@ export default function() {
     }
 
     function handleStreamingFeedEvents() {
-        if (source.streamingFeed != null) {
+        if (source.streamingFeed != null && dateRange.length !== 2) {
             source.streamingFeed.on('message', function(trade) {
                 _collectOhlc(data, trade);
                 dispatch[event.newTrade](data, source);
@@ -59,12 +59,10 @@ export default function() {
             source = product.source;
             source.historicFeed.product(product.id);
 
-            if (source.streamingFeed != null) {
+            if (source.streamingFeed != null && dateRange.length !== 2) {
                 source.streamingFeed.product(product.id);
             }
         }
-
-        var now = new Date();
 
         source.historicFeed.dateRange(dateRange)
             .candles(candlesOfData)
