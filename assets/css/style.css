@@ -7096,6 +7096,8 @@ text {
 
 .cartesian-chart, .multiples-chart {
   overflow: visible;
+  /* see: https://github.com/ScottLogic/d3fc/issues/779 */
+  vertical-align: middle;
 }
 
 .multiples-chart .label {
@@ -7266,7 +7268,8 @@ text {
   stroke-width: 1;
   stroke-dasharray: 3, 3;
 }
-.annotation text {
+.annotation .right-handle text,
+.annotation .top-handle text {
   text-anchor: end;
 }
 
@@ -8093,35 +8096,6 @@ fieldset[disabled] .btn-danger.active {
           user-select: none;
   cursor: default;
 }
-#charts-container .crosshair {
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-}
-@media (max-height: 1199px) and (max-width: 1199px) {
-  #charts-container .crosshair {
-    display: none !important;
-  }
-}
-#charts-container .crosshair .point {
-  fill: #A6CEE3;
-  fill-opacity: 0.75;
-  stroke: #58a3cb;
-}
-#charts-container .crosshair .annotation > line {
-  stroke: #A6CEE3;
-  stroke-dasharray: 3, 10;
-}
-#charts-container .crosshair.band .point {
-  display: none !important;
-}
-#charts-container .crosshair.band .annotation.horizontal {
-  display: none !important;
-}
-#charts-container .crosshair.band .annotation > line {
-  stroke: rgba(123, 159, 161, 0.2);
-  stroke-dasharray: 0;
-}
 .head-menu .form-control {
   min-width: 0;
   width: auto;
@@ -8405,6 +8379,35 @@ fieldset[disabled] .btn-danger.active {
   stroke: #FF7F00;
   stroke-width: 1px;
 }
+#primary-container .crosshair {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+@media (max-height: 1199px) and (max-width: 1199px) {
+  #primary-container .crosshair {
+    display: none !important;
+  }
+}
+#primary-container .crosshair .point {
+  fill: #A6CEE3;
+  fill-opacity: 0.75;
+  stroke: #58a3cb;
+}
+#primary-container .crosshair .annotation > line {
+  stroke: #A6CEE3;
+  stroke-dasharray: 3, 10;
+}
+#primary-container .crosshair.band .point {
+  display: none !important;
+}
+#primary-container .crosshair.band .annotation.horizontal {
+  display: none !important;
+}
+#primary-container .crosshair.band .annotation > line {
+  stroke: rgba(123, 159, 161, 0.2);
+  stroke-dasharray: 0;
+}
 #legend {
   margin-top: 1px;
   margin-right: 75px;
@@ -8435,19 +8438,20 @@ fieldset[disabled] .btn-danger.active {
 #legend #tooltip .value {
   fill: #7B9FA1;
 }
-.y-axis .closeLine text {
+.y-axis .close-line text {
   fill: #FFFFFF;
   font-size: 16px;
   font-weight: 300;
   line-height: 1.5;
 }
-.y-axis .closeLine.tick > path {
+.y-axis .close-line.tick > path {
   stroke: #377EB8;
   fill: #377EB8;
 }
-.plot-area .annotation > line {
+.plot-area .annotation.close-line > line {
   stroke: #377EB8;
   stroke-dasharray: 4;
+  shape-rendering: crispEdges;
 }
 .secondary-container {
   height: 100%;
