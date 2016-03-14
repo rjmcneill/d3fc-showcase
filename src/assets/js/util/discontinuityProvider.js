@@ -14,5 +14,6 @@ export default function(productSource, discontinuousSources) {
         }
     });
 
-    return skip ? skipWeekends() : fc.scale.discontinuity.identity();
+    return skipWeekends();
+    // return skip ? skipWeekends() : fc.scale.discontinuity.identity();
 }

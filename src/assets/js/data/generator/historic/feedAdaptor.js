@@ -3,8 +3,10 @@ import fc from 'd3fc';
 
 export default function() {
 
-    var dataGenerator = fc.data.random.financial(),
-        allowedPeriods = [60 * 60 * 24],
+    var dataGenerator = fc.data.random.financial()
+        .filter(fc.data.random.filter.skipWeekends());
+
+    var allowedPeriods = [60 * 60 * 24],
         candles,
         end,
         granularity,
@@ -13,9 +15,15 @@ export default function() {
     var dataGeneratorAdaptor = function(cb) {
         end.setHours(0, 0, 0, 0);
         var millisecondsPerDay = 24 * 60 * 60 * 1000;
-        dataGenerator.startDate(new Date(end - (candles - 1) * millisecondsPerDay));
+        var millisecondsPerWeek = millisecondsPerDay * 5;
 
-        var data = dataGenerator(candles);
+        var numberOfWeeks = Math.floor((candles - 1) / 5);
+        var numberOfSpareDays = Math.floor((candles - 1) % 5);
+
+        dataGenerator.startDate(new Date(end - (numberOfWeeks * millisecondsPerWeek) - (numberOfSpareDays * millisecondsPerDay)));
+        // dataGenerator.startDate(new Date(end - (candles - 1) * millisecondsPerDay));
+
+        var data = dataGenerator(142);
         cb(null, data);
     };
 
