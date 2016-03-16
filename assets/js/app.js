@@ -8,27 +8,35 @@
     fc = 'default' in fc ? fc['default'] : fc;
     $ = 'default' in $ ? $['default'] : $;
 
-    function centerOnDate(domain, data, centerDate) {
+    function centerOnDate(discontinuityProvider, domain, data, centerDate) {
         var dataExtent = fc.util.extent()
-          .fields('date')(data);
-        var domainTimes = domain.map(function(d) { return d.getTime(); });
-        var domainTimeDifference = (d3.max(domainTimes) - d3.min(domainTimes)) / 1000;
+            .fields('date')(data);
+
+        var domainExtent = fc.util.extent()
+            .fields(fc.util.fn.identity)(domain);
+
+        var domainTimeDifference = discontinuityProvider.distance(domainExtent[0], domainExtent[1]);
 
         if (centerDate.getTime() < dataExtent[0] || centerDate.getTime() > dataExtent[1]) {
-            return [new Date(d3.min(domainTimes)), new Date(d3.max(domainTimes))];
+            return domainExtent;
         }
 
-        var centeredDataDomain = [d3.time.second.offset(centerDate, -domainTimeDifference / 2),
-            d3.time.second.offset(centerDate, domainTimeDifference / 2)];
+        var centeredDataDomain = [
+            discontinuityProvider.offset(centerDate, -domainTimeDifference / 2),
+            discontinuityProvider.offset(centerDate, domainTimeDifference / 2)
+        ];
+
         var timeShift = 0;
         if (centeredDataDomain[1].getTime() > dataExtent[1].getTime()) {
-            timeShift = (dataExtent[1].getTime() - centeredDataDomain[1].getTime()) / 1000;
+            timeShift = -discontinuityProvider.distance(dataExtent[1], centeredDataDomain[1]);
         } else if (centeredDataDomain[0].getTime() < dataExtent[0].getTime()) {
-            timeShift = (dataExtent[0].getTime() - centeredDataDomain[0].getTime()) / 1000;
+            timeShift = discontinuityProvider.distance(centeredDataDomain[0], dataExtent[0]);
         }
 
-        return [d3.time.second.offset(centeredDataDomain[0], timeShift),
-            d3.time.second.offset(centeredDataDomain[1], timeShift)];
+        return [
+            discontinuityProvider.offset(centeredDataDomain[0], timeShift),
+            discontinuityProvider.offset(centeredDataDomain[1], timeShift)
+        ];
     }
 
     function filterDataInDateRange(domain, data) {
@@ -48,160 +56,20 @@
         return filteredData;
     }
 
-    // TODO: Temp until merged into d3fc
-    function skipWeekends() {
-        var millisPerDay = 24 * 3600 * 1000;
-        var millisPerWorkWeek = millisPerDay * 5;
-        var millisPerWeek = millisPerDay * 7;
-
-        var skipWeekends = {};
-
-        function isWeekend(date) {
-            return date.getDay() === 0 || date.getDay() === 6;
-        }
-
-        skipWeekends.clampDown = function(date) {
-            if (date && isWeekend(date)) {
-                var daysToSubtract = date.getDay() === 0 ? 2 : 1;
-                // round the date up to midnight
-                var newDate = d3.time.day.ceil(date);
-                // then subtract the required number of days
-                return d3.time.day.offset(newDate, -daysToSubtract);
-            } else {
-                return date;
-            }
-        };
-
-        skipWeekends.clampUp = function(date) {
-            if (date && isWeekend(date)) {
-                var daysToAdd = date.getDay() === 0 ? 1 : 2;
-                // round the date down to midnight
-                var newDate = d3.time.day.floor(date);
-                // then add the required number of days
-                return d3.time.day.offset(newDate, daysToAdd);
-            } else {
-                return date;
-            }
-        };
-
-        // returns the number of included milliseconds (i.e. those which do not fall)
-        // within discontinuities, along this scale
-        skipWeekends.distance = function(startDate, endDate) {
-            startDate = skipWeekends.clampUp(startDate);
-            endDate = skipWeekends.clampDown(endDate);
-
-            // move the start date to the end of week boundary
-            var offsetStart = d3.time.saturday.ceil(startDate);
-            if (endDate < offsetStart) {
-                return endDate.getTime() - startDate.getTime();
-            }
-
-            var msAdded = offsetStart.getTime() - startDate.getTime();
-
-            // move the end date to the end of week boundary
-            var offsetEnd = d3.time.saturday.ceil(endDate);
-            var msRemoved = offsetEnd.getTime() - endDate.getTime();
-
-            // determine how many weeks there are between these two dates
-            var weeks = (offsetEnd.getTime() - offsetStart.getTime()) / millisPerWeek;
-
-            return weeks * millisPerWorkWeek + msAdded - msRemoved;
-        };
-
-        skipWeekends.offset = function(startDate, ms) {
-            var date = isWeekend(startDate) ? skipWeekends.clampUp(startDate) : startDate;
-            var remainingms = ms;
-
-            if (remainingms < 0) {
-                var startOfWeek = d3.time.monday.floor(date);
-                remainingms -= (startOfWeek.getTime() - date.getTime());
-
-                if (remainingms >= 0) {
-                    return new Date(date.getTime() + ms);
-                }
-
-                date = d3.time.day.offset(startOfWeek, -2);
-
-                var weeks = Math.floor(remainingms / millisPerWorkWeek);
-                date = d3.time.day.offset(date, weeks * 7);
-                remainingms -= weeks * millisPerWorkWeek;
-
-                date = new Date(date.getTime() + remainingms);
-                date = d3.time.day.offset(date, 2);
-                return date;
-            } else {
-                // move to the end of week boundary
-                var endOfWeek = d3.time.saturday.ceil(date);
-                remainingms -= (endOfWeek.getTime() - date.getTime());
-
-                // if the distance to the boundary is greater than the number of ms
-                // simply add the ms to the current date
-                if (remainingms < 0) {
-                    return new Date(date.getTime() + ms);
-                }
-
-                // skip the weekend
-                date = d3.time.day.offset(endOfWeek, 2);
-
-                // add all of the complete weeks to the date
-                var completeWeeks = Math.floor(remainingms / millisPerWorkWeek);
-                date = d3.time.day.offset(date, completeWeeks * 7);
-                remainingms -= completeWeeks * millisPerWorkWeek;
-
-                // add the remaining time
-                date = new Date(date.getTime() + remainingms);
-                return date;
-            }
-        };
-
-        skipWeekends.copy = function() { return skipWeekends; };
-
-        return skipWeekends;
-    }
-
-    function discontinuityProvider(productSource, discontinuousSources) {
-        var skip = false;
-
-        if (!Array.isArray(discontinuousSources)) {
-            discontinuousSources = [discontinuousSources];
-        }
-
-        discontinuousSources.forEach(function(discontinuousSource) {
-            if (productSource === discontinuousSource) {
-                skip = true;
-            }
-        });
-
-        return skipWeekends();
-        // return skip ? skipWeekends() : fc.scale.discontinuity.identity();
-    }
-
-    function moveToLatest(domain, data, ratio) {
-        if (arguments.length < 3) {
+    function moveToLatest(discontinuityProvider, domain, data, ratio) {
+        if (arguments.length < 4) {
             ratio = 1;
         }
         var dataExtent = fc.util.extent()
-          .fields('date')(data);
-        var dataTimeExtent = (dataExtent[1].getTime() - dataExtent[0].getTime()) / 1000;
-        var domainTimes = domain.map(function(d) { return d.getTime(); });
-        var scaledDomainTimeDifference = ratio * (d3.max(domainTimes) - d3.min(domainTimes)) / 1000;
+            .fields('date')(data);
+
+        var domainExtent = fc.util.extent()
+            .fields(fc.util.fn.identity)(domain);
+
+        var dataTimeExtent = discontinuityProvider.distance(dataExtent[0], dataExtent[1]);
+        var scaledDomainTimeDifference = ratio * discontinuityProvider.distance(domainExtent[0], domainExtent[1]);
         var scaledLiveDataDomain = scaledDomainTimeDifference < dataTimeExtent ?
-          [d3.time.second.offset(dataExtent[1], -scaledDomainTimeDifference), dataExtent[1]] : dataExtent;
-
-        if (scaledLiveDataDomain[0].getDay() === 6 || scaledLiveDataDomain[0].getDay() === 0) {
-            var floorFriday = d3.time.friday.floor(scaledLiveDataDomain[0]);
-            var floorSaturday = d3.time.saturday.floor(scaledLiveDataDomain[0]);
-            var ceilMonday = d3.time.monday.ceil(scaledLiveDataDomain[0]);
-
-            var newRatio = (scaledLiveDataDomain[0].getTime() - floorSaturday.getTime()) / (ceilMonday.getTime() - floorSaturday.getTime());
-            var timeToAdd = 24 * 60 * 60 * 1000 * newRatio;
-            console.log(newRatio);
-
-            console.log(scaledLiveDataDomain[0]);
-            scaledLiveDataDomain[0] = new Date(floorFriday.getTime() + timeToAdd);
-            console.log(scaledLiveDataDomain[0]);
-        }
-
+          [discontinuityProvider.offset(dataExtent[1], -scaledDomainTimeDifference), dataExtent[1]] : dataExtent;
         return scaledLiveDataDomain;
     }
 
@@ -376,8 +244,7 @@
         uid: uid,
         width: width,
         debounce: debounce,
-        throttle: throttle,
-        discontinuityProvider: discontinuityProvider
+        throttle: throttle
     };
 
     var event = {
@@ -425,6 +292,20 @@
             return Math.min(Math.max(value, min), max);
         }
 
+        function clampDomain(domain, data, totalXExtent) {
+            var clampedDomain = domain;
+
+            if (scale(data[0].date) > 0) {
+                clampedDomain[0] = scale.invert(scale(domain[0]) + scale(data[0].date));
+                clampedDomain[1] = scale.invert(scale(domain[1]) + scale(data[0].date));
+            }
+
+            clampedDomain[0] = d3.max([totalXExtent[0], clampedDomain[0]]);
+            clampedDomain[1] = d3.min([totalXExtent[1], clampedDomain[1]]);
+
+            return clampedDomain;
+        }
+
         function zoom(selection) {
 
             var xExtent = fc.util.extent()
@@ -452,8 +333,13 @@
                       if (maxDomainViewed) {
                           domain = xExtent;
                       } else if (zoomed && trackingLatest) {
-                          domain = util.domain.moveToLatest(domain, selection.datum().data);
+                          domain = util.domain.moveToLatest(
+                              selection.datum().discontinuityProvider,
+                              domain,
+                              selection.datum().data);
                       }
+
+                      domain = clampDomain(domain, selection.datum().data, xExtent);
 
                       if (domain[0].getTime() !== domain[1].getTime()) {
                           dispatch.zoom(domain);
@@ -529,7 +415,7 @@
 
         function secondary(selection) {
             selection.each(function(model) {
-                xScale.discontinuityProvider(model.discontinuity);
+                xScale.discontinuityProvider(model.discontinuityProvider);
 
                 var container = d3.select(this)
                   .datum(model.data)
@@ -543,7 +429,7 @@
                   });
 
                 container.select('.plot-area-container')
-                  .datum({data: selection.datum()})
+                  .datum(model)
                   .call(zoom);
             });
         }
@@ -824,9 +710,9 @@
         function nav(selection) {
             var model = selection.datum();
 
-            xScale.discontinuityProvider(model.discontinuity);
-            maskXScale.discontinuityProvider(model.discontinuity);
-            viewScale.discontinuityProvider(model.discontinuity);
+            xScale.discontinuityProvider(model.discontinuityProvider);
+            maskXScale.discontinuityProvider(model.discontinuityProvider);
+            viewScale.discontinuityProvider(model.discontinuityProvider);
 
             createDefs(selection, model.data);
 
@@ -856,8 +742,11 @@
                     var brushExtentIsEmpty = xEmpty(brush);
                     setHide(selection, false);
                     if (brushExtentIsEmpty) {
-                        dispatch[event.viewChange](util.domain.centerOnDate(viewScale.domain(),
-                            model.data, brush.extent()[0][0]));
+                        dispatch[event.viewChange](util.domain.centerOnDate(
+                            model.discontinuityProvider,
+                            viewScale.domain(),
+                            model.data,
+                            brush.extent()[0][0]));
                     }
                 });
 
@@ -949,7 +838,7 @@
             var model = selection.datum();
             xScale.domain(model.viewDomain);
 
-            xScale.discontinuityProvider(model.discontinuity);
+            xScale.discontinuityProvider(model.discontinuityProvider);
 
             preventTicksMoreFrequentThanPeriod(model.period);
             selection.call(xAxis);
@@ -1230,7 +1119,7 @@
 
             primaryChart.xDomain(model.viewDomain);
 
-            xScale.discontinuityProvider(model.discontinuity);
+            xScale.discontinuityProvider(model.discontinuityProvider);
 
             crosshair.snap(fc.util.seriesPointSnapXOnly(currentSeries.option, model.data));
             updateCrosshairDecorate(model.data);
@@ -1919,12 +1808,13 @@
         };
     }
 
-    function source(historicFeed, historicNotificationFormatter, streamingFeed, streamingNotificationFormatter) {
+    function source(historicFeed, historicNotificationFormatter, streamingFeed, streamingNotificationFormatter, discontinuityProvider) {
         return {
             historicFeed: historicFeed,
             historicNotificationFormatter: historicNotificationFormatter,
             streamingFeed: streamingFeed,
-            streamingNotificationFormatter: streamingNotificationFormatter
+            streamingNotificationFormatter: streamingNotificationFormatter,
+            discontinuityProvider: discontinuityProvider
         };
     }
 
@@ -2010,12 +1900,12 @@
         };
     }
 
-    function nav$1(initialDiscontinuity) {
+    function nav$1(initialDiscontinuityProvider) {
         return {
             data: [],
             viewDomain: [],
             trackingLatest: true,
-            discontinuity: initialDiscontinuity
+            discontinuityProvider: initialDiscontinuityProvider
         };
     }
 
@@ -2025,13 +1915,13 @@
         };
     }
 
-    function primary$1(initialProduct, initialDiscontinuity) {
+    function primary$1(initialProduct, initialDiscontinuityProvider) {
         var model = {
             data: [],
             trackingLatest: true,
             viewDomain: [],
             selectorsChanged: true,
-            discontinuity: initialDiscontinuity
+            discontinuityProvider: initialDiscontinuityProvider
         };
 
         var _product = initialProduct;
@@ -2076,21 +1966,21 @@
         return model;
     }
 
-    function secondary$1(initialProduct, initialDiscontinuity) {
+    function secondary$1(initialProduct, initialDiscontinuityProvider) {
         return {
             data: [],
             viewDomain: [],
             trackingLatest: true,
             product: initialProduct,
-            discontinuity: initialDiscontinuity
+            discontinuityProvider: initialDiscontinuityProvider
         };
     }
 
-    function xAxis$1(initialPeriod, initialDiscontinuity) {
+    function xAxis$1(initialPeriod, initialDiscontinuityProvider) {
         return {
             viewDomain: [],
             period: initialPeriod,
-            discontinuity: initialDiscontinuity
+            discontinuityProvider: initialDiscontinuityProvider
         };
     }
 
@@ -2123,10 +2013,8 @@
 
     function dataGeneratorAdaptor() {
 
-        var dataGenerator = fc.data.random.financial()
-            .filter(fc.data.random.filter.skipWeekends());
-
-        var allowedPeriods = [60 * 60 * 24],
+        var dataGenerator = fc.data.random.financial(),
+            allowedPeriods = [60 * 60 * 24],
             candles,
             end,
             granularity,
@@ -2135,15 +2023,9 @@
         var dataGeneratorAdaptor = function(cb) {
             end.setHours(0, 0, 0, 0);
             var millisecondsPerDay = 24 * 60 * 60 * 1000;
-            var millisecondsPerWeek = millisecondsPerDay * 5;
+            dataGenerator.startDate(new Date(end - (candles - 1) * millisecondsPerDay));
 
-            var numberOfWeeks = Math.floor((candles - 1) / 5);
-            var numberOfSpareDays = Math.floor((candles - 1) % 5);
-
-            dataGenerator.startDate(new Date(end - (numberOfWeeks * millisecondsPerWeek) - (numberOfSpareDays * millisecondsPerDay)));
-            // dataGenerator.startDate(new Date(end - (candles - 1) * millisecondsPerDay));
-
-            var data = dataGenerator(142);
+            var data = dataGenerator(candles);
             cb(null, data);
         };
 
@@ -2373,6 +2255,117 @@
         return message;
     }
 
+    // TODO: Temp until merged into d3fc
+    function skipWeekendsDiscontinuityProvider() {
+        var millisPerDay = 24 * 3600 * 1000;
+        var millisPerWorkWeek = millisPerDay * 5;
+        var millisPerWeek = millisPerDay * 7;
+
+        var skipWeekends = {};
+
+        function isWeekend(date) {
+            return date.getDay() === 0 || date.getDay() === 6;
+        }
+
+        skipWeekends.clampDown = function(date) {
+            if (date && isWeekend(date)) {
+                var daysToSubtract = date.getDay() === 0 ? 2 : 1;
+                // round the date up to midnight
+                var newDate = d3.time.day.ceil(date);
+                // then subtract the required number of days
+                return d3.time.day.offset(newDate, -daysToSubtract);
+            } else {
+                return date;
+            }
+        };
+
+        skipWeekends.clampUp = function(date) {
+            if (date && isWeekend(date)) {
+                var daysToAdd = date.getDay() === 0 ? 1 : 2;
+                // round the date down to midnight
+                var newDate = d3.time.day.floor(date);
+                // then add the required number of days
+                return d3.time.day.offset(newDate, daysToAdd);
+            } else {
+                return date;
+            }
+        };
+
+        // returns the number of included milliseconds (i.e. those which do not fall)
+        // within discontinuities, along this scale
+        skipWeekends.distance = function(startDate, endDate) {
+            startDate = skipWeekends.clampUp(startDate);
+            endDate = skipWeekends.clampDown(endDate);
+
+            // move the start date to the end of week boundary
+            var offsetStart = d3.time.saturday.ceil(startDate);
+            if (endDate < offsetStart) {
+                return endDate.getTime() - startDate.getTime();
+            }
+
+            var msAdded = offsetStart.getTime() - startDate.getTime();
+
+            // move the end date to the end of week boundary
+            var offsetEnd = d3.time.saturday.ceil(endDate);
+            var msRemoved = offsetEnd.getTime() - endDate.getTime();
+
+            // determine how many weeks there are between these two dates
+            var weeks = Math.round((offsetEnd.getTime() - offsetStart.getTime()) / millisPerWeek);
+
+            return weeks * millisPerWorkWeek + msAdded - msRemoved;
+        };
+
+        skipWeekends.offset = function(startDate, ms) {
+            var date = isWeekend(startDate) ? skipWeekends.clampUp(startDate) : startDate;
+            var remainingms = ms;
+
+            if (remainingms < 0) {
+                var startOfWeek = d3.time.monday.floor(date);
+                remainingms -= (startOfWeek.getTime() - date.getTime());
+
+                if (remainingms >= 0) {
+                    return new Date(date.getTime() + ms);
+                }
+
+                date = d3.time.day.offset(startOfWeek, -2);
+
+                var weeks = Math.floor(remainingms / millisPerWorkWeek);
+                date = d3.time.day.offset(date, weeks * 7);
+                remainingms -= weeks * millisPerWorkWeek;
+
+                date = new Date(date.getTime() + remainingms);
+                date = d3.time.day.offset(date, 2);
+                return date;
+            } else {
+                // move to the end of week boundary
+                var endOfWeek = d3.time.saturday.ceil(date);
+                remainingms -= (endOfWeek.getTime() - date.getTime());
+
+                // if the distance to the boundary is greater than the number of ms
+                // simply add the ms to the current date
+                if (remainingms < 0) {
+                    return new Date(date.getTime() + ms);
+                }
+
+                // skip the weekend
+                date = d3.time.day.offset(endOfWeek, 2);
+
+                // add all of the complete weeks to the date
+                var completeWeeks = Math.floor(remainingms / millisPerWorkWeek);
+                date = d3.time.day.offset(date, completeWeeks * 7);
+                remainingms -= completeWeeks * millisPerWorkWeek;
+
+                // add the remaining time
+                date = new Date(date.getTime() + remainingms);
+                return date;
+            }
+        };
+
+        skipWeekends.copy = function() { return skipWeekends; };
+
+        return skipWeekends;
+    }
+
     function initialiseModel() {
         function initPeriods() {
             return {
@@ -2386,10 +2379,24 @@
 
         function initSources() {
             return {
-                generated: model.data.source(dataGeneratorAdaptor(), null, null),
-                bitcoin: model.data.source(coinbaseAdaptor(), coinbaseHistoricErrorResponseFormatter, coinbaseWebSocket(),
-                    coinbaseStreamingErrorResponseFormatter),
-                quandl: model.data.source(quandlAdaptor(), quandlHistoricErrorResponseFormatter, null, null)
+                generated: model.data.source(
+                    dataGeneratorAdaptor(),
+                    null,
+                    null,
+                    null,
+                    fc.scale.discontinuity.identity()),
+                bitcoin: model.data.source(
+                    coinbaseAdaptor(),
+                    coinbaseHistoricErrorResponseFormatter,
+                    coinbaseWebSocket(),
+                    coinbaseStreamingErrorResponseFormatter,
+                    fc.scale.discontinuity.identity()),
+                quandl: model.data.source(
+                    quandlAdaptor(),
+                    quandlHistoricErrorResponseFormatter,
+                    null,
+                    null,
+                    skipWeekendsDiscontinuityProvider())
             };
         }
 
@@ -2499,25 +2506,18 @@
             };
         }
 
-        function initDiscontinuity(productSource) {
-            return util.discontinuityProvider(productSource, discontinuousSources);
-        }
-
         var periods = initPeriods();
         var sources = initSources();
         var products = initProducts();
-        var discontinuousSources = [sources.quandl];
-        var initialDiscontinuity = initDiscontinuity(products.generated.source);
 
         return {
             periods: periods,
             sources: sources,
-            discontinuousSources: discontinuousSources,
-            primaryChart: model.chart.primary(products.generated, initialDiscontinuity),
-            secondaryChart: model.chart.secondary(products.generated, initialDiscontinuity),
+            primaryChart: model.chart.primary(products.generated, products.generated.source.discontinuityProvider),
+            secondaryChart: model.chart.secondary(products.generated, products.generated.source.discontinuityProvider),
             selectors: initSelectors(),
-            xAxis: model.chart.xAxis(periods.day1, initialDiscontinuity),
-            nav: model.chart.nav(initialDiscontinuity),
+            xAxis: model.chart.xAxis(periods.day1, products.generated.source.discontinuityProvider),
+            nav: model.chart.nav(products.generated.source.discontinuityProvider),
             navReset: model.chart.navigationReset(),
             headMenu: model.menu.head([products.generated, products.quandl], products.generated, periods.day1),
             legend: model.chart.legend(products.generated, periods.day1),
@@ -2763,7 +2763,11 @@
             var data = model.primaryChart.data;
             var dataDomain = fc.util.extent()
                 .fields('date')(data);
-            var navTimeDomain = util.domain.moveToLatest(dataDomain, data, proportionOfDataToDisplayByDefault);
+            var navTimeDomain = util.domain.moveToLatest(
+                model.primaryChart.discontinuityProvider,
+                dataDomain,
+                data,
+                proportionOfDataToDisplayByDefault);
             onViewChange(navTimeDomain);
         }
 
@@ -2782,13 +2786,13 @@
             model.nav.data = data;
         }
 
-        function updateDiscontinuity(productSource) {
-            var discontinuity = util.discontinuityProvider(productSource, model.discontinuousSources);
+        function updateDiscontinuityProvider(productSource) {
+            var discontinuityProvider = productSource.discontinuityProvider;
 
-            model.xAxis.discontinuity = discontinuity;
-            model.nav.discontinuity = discontinuity;
-            model.primaryChart.discontinuity = discontinuity;
-            model.secondaryChart.discontinuity = discontinuity;
+            model.xAxis.discontinuityProvider = discontinuityProvider;
+            model.nav.discontinuityProvider = discontinuityProvider;
+            model.primaryChart.discontinuityProvider = discontinuityProvider;
+            model.secondaryChart.discontinuityProvider = discontinuityProvider;
         }
 
         function updateModelSelectedProduct(product) {
@@ -2798,7 +2802,7 @@
             model.legend.product = product;
             model.overlay.selectedProduct = product;
 
-            updateDiscontinuity(product.source);
+            updateDiscontinuityProvider(product.source);
         }
 
         function updateModelSelectedPeriod(period) {
@@ -2836,6 +2840,7 @@
                     updateModelData(data);
                     if (model.primaryChart.trackingLatest) {
                         var newDomain = util.domain.moveToLatest(
+                            model.primaryChart.discontinuityProvider,
                             model.primaryChart.viewDomain,
                             model.primaryChart.data);
                         onViewChange(newDomain);
