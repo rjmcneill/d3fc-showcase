@@ -7,11 +7,7 @@ import yAxisChart from './yAxis';
 
 function getExtentAccessors(multiSeries) {
     return multiSeries.reduce(function(extentAccessors, series) {
-        if (series.extentAccessor) {
-            return extentAccessors.concat(series.extentAccessor);
-        } else {
-            return extentAccessors;
-        }
+        return extentAccessors.concat(series.extentAccessor || []);
     }, []);
 }
 

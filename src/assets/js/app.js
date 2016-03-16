@@ -147,14 +147,6 @@ export default function() {
             .filter(function(d, i) { return i < charts.secondaries.length; })
             .each(function(d, i) {
                 d3.select(this)
-// <<<<<<< 306d9a98e0a8123db2951e4b6256fca94c30334b
-//                     .attr('class', 'secondary-container secondary-' + charts.secondaries[i].valueString)
-//                     .call(charts.secondaries[i].option);
-// =======
-//                     .select('.secondary-container')
-//                     .attr('class', 'secondary-container ' + charts.secondaries[i].valueString);
-//                 d3.select(this).call(charts.secondaries[i].option);
-// >>>>>>> Moved yAxis to separate component
                     .select('.secondary-container')
                     .attr('class', 'secondary-container secondary-' + charts.secondaries[i].valueString);
                 d3.select(this).call(charts.secondaries[i].option);
