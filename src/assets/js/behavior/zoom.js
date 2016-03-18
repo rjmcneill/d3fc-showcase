@@ -75,6 +75,16 @@ export default function(width) {
 
                   domain = clampDomain(domain, selection.datum().data, xExtent);
 
+                  // Round upper domain to upper extent
+                  if (zoomed && scale(domain[1]) === width) {
+                      domain[1] = xExtent[1];
+                  }
+
+                  // Round lower domain to lower extent
+                  if (zoomed && scale(domain[0]) === 0) {
+                      domain[0] = xExtent[0];
+                  }
+
                   if (domain[0].getTime() !== domain[1].getTime()) {
                       dispatch.zoom(domain);
                   } else {
