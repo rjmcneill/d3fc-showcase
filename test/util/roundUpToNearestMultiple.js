@@ -1,6 +1,6 @@
-import roundTimestampUp from '../../../src/assets/js/util/domain/roundTimestampUp';
+import roundUpToNearestMultiple from '../../src/assets/js/util/roundUpToNearestMultiple';
 
-describe('util/domain/roundTimestampUp', function() {
+describe('util/domain/roundUpToNearestMultiple', function() {
 
     var dayInSeconds = 86400;
     var hourInSeconds = 3600;
@@ -9,7 +9,7 @@ describe('util/domain/roundTimestampUp', function() {
         var timestamp = 1453731563;         // Mon, 25 Jan 2016 14:19:23 GMT
         var expectedTimstamp = 1453766400;   // Mon, 26 Jan 2016 00:00:00 GMT
 
-        var roundedTimestamp = roundTimestampUp(timestamp, dayInSeconds);
+        var roundedTimestamp = roundUpToNearestMultiple(timestamp, dayInSeconds);
 
         expect(roundedTimestamp).toEqual(expectedTimstamp);
     });
@@ -18,7 +18,7 @@ describe('util/domain/roundTimestampUp', function() {
         var timestamp = 1453731563;         // Mon, 25 Jan 2016 14:19:23 GMT
         var expectedTimstamp = 1453734000;   // Mon, 25 Jan 2016 15:00:00 GMT
 
-        var roundedTimestamp = roundTimestampUp(timestamp, hourInSeconds);
+        var roundedTimestamp = roundUpToNearestMultiple(timestamp, hourInSeconds);
 
         expect(roundedTimestamp).toEqual(expectedTimstamp);
     });

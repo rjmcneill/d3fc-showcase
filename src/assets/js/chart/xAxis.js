@@ -1,8 +1,6 @@
 import d3 from 'd3';
 import fc from 'd3fc';
 import util from '../util/util';
-import zoom from '../behavior/zoom';
-import domain from '../util/domain/domain';
 
 export default function() {
     var xScale = fc.scale.dateTime();
@@ -16,9 +14,26 @@ export default function() {
     var tickValues = [];
     var originalDomain;
     var tickSpacing;
+    var tickPixelSpacing = 150;
 
     function calculateNumberOfTicks() {
-        return Math.max(Math.ceil(containerWidth / 150), 2);
+        return Math.max(Math.ceil(containerWidth / tickPixelSpacing), 2);
+    }
+
+    function removeTickValuesOutsideDomain(viewDomain) {
+        // Remove ticks lower than low view domain
+        tickValues.forEach(function(tick) {
+            if (tick < viewDomain[0]) {
+                tickValues.splice(0, 1);
+            }
+        });
+
+        // Remove ticks higher than high view domain
+        for (var i = 0; i < tickValues.length; i++) {
+            if (tickValues[i] > viewDomain[1]) {
+                tickValues.splice(i, tickValues.length - i);
+            }
+        }
     }
 
     function calculateTickValues(model, numberOfTicks) {
@@ -26,27 +41,22 @@ export default function() {
         var upperRoundedViewDomain = model.period.d3TimeInterval.unit.floor(model.viewDomain[1]).getTime();
         var viewDomainDifference = (upperRoundedViewDomain - lowerRoundedViewDomain);
         var zoomLevelChanged;
-
-        if (originalDomain) {
-            zoomLevelChanged = (originalDomain[1].getTime() - originalDomain[0].getTime() !== model.viewDomain[1].getTime() - model.viewDomain[0].getTime());
-            if (zoomLevelChanged || containerWidthChanged) {
-                // If they have zoomed, recalculate the tick spacing
-                tickSpacing = util.domain.roundTimestampUp((viewDomainDifference / numberOfTicks), model.period.seconds * 1000);
-                containerWidthChanged = false;
-            }
-        }
-
-        if (!tickValues.length) {
-            tickSpacing = util.domain.roundTimestampUp((viewDomainDifference / numberOfTicks), model.period.seconds * 1000);
-        }
-
-        var lowerRounded = util.domain.roundTimestampDown(lowerRoundedViewDomain, tickSpacing);
         var viewDomainChanged = false;
 
         if (originalDomain) {
+            zoomLevelChanged = (originalDomain[1].getTime() - originalDomain[0].getTime() !==
+                model.viewDomain[1].getTime() - model.viewDomain[0].getTime());
+
             viewDomainChanged = (originalDomain[0].getTime() !== model.viewDomain[0].getTime()) ||
-            (originalDomain[1].getTime() !== model.viewDomain[1].getTime());
+                (originalDomain[1].getTime() !== model.viewDomain[1].getTime());
         }
+
+        if (!tickValues.length || zoomLevelChanged || containerWidthChanged) {
+            tickSpacing = util.roundUpToNearestMultiple((viewDomainDifference / numberOfTicks), model.period.seconds * 1000);
+            containerWidthChanged = false;
+        }
+
+        var lowerRounded = util.roundDownToNearestMultiple(lowerRoundedViewDomain, tickSpacing);
 
         if (tickValues.length !== numberOfTicks || viewDomainChanged || zoomLevelChanged) {
             tickValues = [];
@@ -56,21 +66,7 @@ export default function() {
             }
         }
 
-        // Remove ticks lower than low view domain
-        tickValues.forEach(function(tick) {
-            if (tick < model.viewDomain[0]) {
-                tickValues.splice(0, 1);
-            }
-        });
-
-        // Remove ticks higher than high view domain
-        for (var j = 0; j < tickValues.length; j++) {
-            if (tickValues[j] > model.viewDomain[1]) {
-                tickValues.splice(j, tickValues.length - j);
-            }
-        }
-
-        xAxis.tickValues(tickValues);
+        removeTickValuesOutsideDomain(model.viewDomain);
 
         if (viewDomainChanged || !originalDomain) {
             originalDomain = model.viewDomain;
@@ -83,60 +79,16 @@ export default function() {
         var viewDomainDifference = (upperRoundedViewDomain - lowerRoundedViewDomain) / 1000;
 
         var minimumPeriod = model.period.seconds;
-        var formatting;
+        var timePeriods = [3600, 86400, 2592000];
+        var tickFormats = [d3.time.format('%_I:%M %p'), d3.time.format('%a %_I %p'), d3.time.format('%b %e'), d3.time.format('%B %Y')];
 
-        var yearInSeconds = 31557600;
-        var monthInSeconds = 2592000;
-        var dayInSeconds = 86400;
-        var hourInSeconds = 3600;
-
-        var withinYear = viewDomainDifference < yearInSeconds;
-        var withinMonth = viewDomainDifference < monthInSeconds;
-        var withinDay = viewDomainDifference < dayInSeconds;
-        var withinHour = viewDomainDifference < hourInSeconds;
-
-        var monthsDifference = Math.floor(viewDomainDifference / monthInSeconds);
-        var daysDifference = Math.floor(viewDomainDifference / dayInSeconds);
-        var hoursDifference = Math.floor(viewDomainDifference / hourInSeconds);
-
-        if (withinHour) {
-            formatting = 'minutes';
-        } else if (withinDay) {
-            if (minimumPeriod < hourInSeconds && hoursDifference < numberOfTicks) {
-                formatting = 'minutes';
-            } else {
-                formatting = 'hours';
+        for (var i = 0; i < timePeriods.length; i++) {
+            if (viewDomainDifference < timePeriods[i] ||
+                (minimumPeriod < timePeriods[i] && Math.floor(viewDomainDifference / timePeriods[i]) < numberOfTicks)) {
+                return tickFormats[i];
             }
-        } else if (withinMonth) {
-            if (minimumPeriod < dayInSeconds && daysDifference < numberOfTicks) {
-                formatting = 'hours';
-            } else {
-                formatting = 'days';
-            }
-        } else if (withinYear) {
-            if (monthsDifference >= numberOfTicks) {
-                formatting = 'months';
-            } else {
-                formatting = 'days';
-            }
-        } else {
-            xAxis.tickFormat(d3.time.format('%b %Y'));
         }
-
-        switch (formatting) {
-        case 'minutes':
-            xAxis.tickFormat(d3.time.format('%_I:%M %p'));
-            break;
-        case 'hours':
-            xAxis.tickFormat(d3.time.format('%a %_I %p'));
-            break;
-        case 'days':
-            xAxis.tickFormat(d3.time.format('%b %e'));
-            break;
-        case 'months':
-            xAxis.tickFormat(d3.time.format('%B'));
-            break;
-        }
+        return tickFormats[tickFormats.length - 1];
     }
 
     function xAxisChart(selection) {
@@ -147,7 +99,8 @@ export default function() {
         var numberOfTicks = calculateNumberOfTicks(model);
         xScale.domain(model.viewDomain);
         calculateTickValues(model, numberOfTicks);
-        adaptAxisFormat(model, numberOfTicks);
+        xAxis.tickValues(tickValues);
+        xAxis.tickFormat(adaptAxisFormat(model, numberOfTicks));
         selection.call(xAxis);
     }
 
