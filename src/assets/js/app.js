@@ -126,6 +126,11 @@ export default function() {
         }
     }
 
+    function renderLegend() {
+        containers.legend.datum(model.legend)
+            .call(charts.legend);
+    }
+
     var render = fc.util.render(renderInternal);
 
     var layoutRedrawnInNextRender = true;
@@ -181,7 +186,7 @@ export default function() {
 
     function onCrosshairChange(dataPoint) {
         model.charts.legend.data = dataPoint;
-        render();
+        renderLegend();
     }
 
     function onStreamingFeedCloseOrError(streamingEvent, source) {
