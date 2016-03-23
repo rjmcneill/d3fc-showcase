@@ -68,6 +68,12 @@ export default function() {
         return xAxis;
     };
 
+    group.renderLegend = function(selection, model) {
+        selection.select('#legend')
+            .datum(model.legend)
+            .call(legend);
+    };
+
     d3.rebind(group, dispatch, 'on');
 
     return group;

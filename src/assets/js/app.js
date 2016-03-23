@@ -126,12 +126,12 @@ export default function() {
         }
     }
 
-    function renderLegend() {
-        containers.legend.datum(model.legend)
-            .call(charts.legend);
+    function renderLegendInternal() {
+        charts.renderLegend(containers.chartsAndOverlay, model.charts);
     }
 
     var render = fc.util.render(renderInternal);
+    var renderLegend = fc.util.render(renderLegendInternal);
 
     var layoutRedrawnInNextRender = true;
 
@@ -185,8 +185,10 @@ export default function() {
     }
 
     function onCrosshairChange(dataPoint) {
-        model.charts.legend.data = dataPoint;
-        renderLegend();
+        if (!model.charts.legend.data || dataPoint !== model.charts.legend.data) {
+            model.charts.legend.data = dataPoint;
+            renderLegend();
+        }
     }
 
     function onStreamingFeedCloseOrError(streamingEvent, source) {
