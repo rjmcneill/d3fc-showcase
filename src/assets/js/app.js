@@ -236,6 +236,11 @@ export default function() {
         model.xAxis.viewDomain = viewDomain;
         model.nav.viewDomain = viewDomain;
 
+        immutableModel = immutableModel.setIn(['primaryChart', 'viewDomain'], viewDomain);
+        immutableModel = immutableModel.setIn(['secondaryChart', 'viewDomain'], viewDomain);
+        immutableModel = immutableModel.setIn(['xAxis', 'viewDomain'], viewDomain);
+        immutableModel = immutableModel.setIn(['nav', 'viewDomain'], viewDomain);
+
         var trackingLatest = util.domain.trackingLatestData(
             model.primaryChart.viewDomain,
             model.primaryChart.data);
@@ -244,15 +249,11 @@ export default function() {
         model.nav.trackingLatest = trackingLatest;
         model.navReset.trackingLatest = trackingLatest;
 
-        immutableModel = immutableModel.set('primaryChart', immutable.fromJS(model.primaryChart));
-        immutableModel = immutableModel.set('secondaryChart', immutable.fromJS(model.secondaryChart));
-        immutableModel = immutableModel.set('nav', immutable.fromJS(model.nav));
-        immutableModel = immutableModel.set('xAxis', immutable.fromJS(model.xAxis));
+        immutableModel = immutableModel.setIn(['primaryChart', 'trackingLatest'], trackingLatest);
+        immutableModel = immutableModel.setIn(['secondaryChart', 'trackingLatest'], trackingLatest);
+        immutableModel = immutableModel.setIn(['nav', 'trackingLatest'], trackingLatest);
+        immutableModel = immutableModel.setIn(['navReset', 'trackingLatest'], trackingLatest);
 
-        // Only update navReset model if needed
-        if (immutableModel.get('navReset').toJS().trackingLatest !== trackingLatest) {
-            immutableModel = immutableModel.set('navReset', immutable.fromJS(model.navReset));
-        }
         render();
     }
 
@@ -270,7 +271,7 @@ export default function() {
 
     function onCrosshairChange(dataPoint) {
         model.legend.data = dataPoint;
-        immutableModel = immutableModel.set('legend', immutable.fromJS(model.legend));
+        immutableModel = immutableModel.setIn(['legend', 'data'], dataPoint);
         immutableModel = immutableModel.set('primaryChart', immutable.fromJS(model.primaryChart));
         render();
     }
@@ -321,9 +322,9 @@ export default function() {
         model.secondaryChart.data = data;
         model.nav.data = data;
 
-        immutableModel = immutableModel.set('primaryChart', immutable.fromJS(model.primaryChart));
-        immutableModel = immutableModel.set('secondaryChart', immutable.fromJS(model.secondaryChart));
-        immutableModel = immutableModel.set('nav', immutable.fromJS(model.nav));
+        immutableModel = immutableModel.setIn(['primaryChart', 'data'], data);
+        immutableModel = immutableModel.setIn(['secondaryChart', 'data'], data);
+        immutableModel = immutableModel.setIn(['nav', 'data'], data);
     }
 
     function updateDiscontinuityProvider(productSource) {
@@ -334,10 +335,10 @@ export default function() {
         model.primaryChart.discontinuityProvider = discontinuityProvider;
         model.secondaryChart.discontinuityProvider = discontinuityProvider;
 
-        immutableModel = immutableModel.set('xAxis', immutable.fromJS(model.xAxis));
-        immutableModel = immutableModel.set('nav', immutable.fromJS(model.nav));
-        immutableModel = immutableModel.set('primaryChart', immutable.fromJS(model.primaryChart));
-        immutableModel = immutableModel.set('secondaryChart', immutable.fromJS(model.secondaryChart));
+        immutableModel = immutableModel.setIn(['xAxis', 'discontinuityProvider'], discontinuityProvider);
+        immutableModel = immutableModel.setIn(['nav', 'discontinuityProvider'], discontinuityProvider);
+        immutableModel = immutableModel.setIn(['primaryChart', 'discontinuityProvider'], discontinuityProvider);
+        immutableModel = immutableModel.setIn(['secondaryChart', 'discontinuityProvider'], discontinuityProvider);
     }
 
     function updateModelSelectedProduct(product) {
@@ -347,9 +348,11 @@ export default function() {
         model.legend.product = product;
         model.overlay.selectedProduct = product;
 
-        immutableModel = immutableModel.set('headMenu', immutable.fromJS(model.headMenu));
-        immutableModel = immutableModel.set('legend', immutable.fromJS(model.legend));
-        immutableModel = immutableModel.set('overlay', immutable.fromJS(model.overlay));
+        immutableModel = immutableModel.setIn(['headMenu', 'selectedProduct'], product);
+        immutableModel = immutableModel.setIn(['primaryChart', 'product'], product);
+        immutableModel = immutableModel.setIn(['secondaryChart', 'product'], product);
+        immutableModel = immutableModel.setIn(['legend', 'product'], product);
+        immutableModel = immutableModel.setIn(['overlay', 'selectedProduct'], product);
 
         updateDiscontinuityProvider(product.source);
     }
@@ -359,9 +362,9 @@ export default function() {
         model.xAxis.period = period;
         model.legend.period = period;
 
-        immutableModel = immutableModel.set('headMenu', immutable.fromJS(model.headMenu));
-        immutableModel = immutableModel.set('xAxis', immutable.fromJS(model.xAxis));
-        immutableModel = immutableModel.set('legend', immutable.fromJS(model.legend));
+        immutableModel = immutableModel.setIn(['headMenu', 'selectedPeriod'], period);
+        immutableModel = immutableModel.setIn(['xAxis', 'period'], period);
+        immutableModel = immutableModel.setIn(['legend', 'period'], period);
     }
 
     function changeProduct(product) {
@@ -483,8 +486,8 @@ export default function() {
 
         model.overlay.primaryIndicators = model.primaryChart.indicators;
 
-        immutableModel = immutableModel.set('primaryChart', immutable.fromJS(model.primaryChart));
-        immutableModel = immutableModel.set('selectors', immutable.fromJS(model.selectors));
+        immutableModel = immutableModel.setIn(['overlay', 'primaryIndicators'], model.primaryChart.indicators);
+        immutableModel = immutableModel.setIn(['primaryChart', 'indicators'], model.primaryChart.indicators);
     }
 
     function updateSecondaryChartModels() {
@@ -499,8 +502,8 @@ export default function() {
 
         model.overlay.secondaryIndicators = charts.secondaries;
 
+        immutableModel = immutableModel.setIn(['overlay', 'secondaryIndicators'], charts.secondaries);
         immutableModel = immutableModel.set('secondaryChart', immutable.fromJS(model.secondaryChart));
-        immutableModel = immutableModel.set('overlay', immutable.fromJS(model.overlay));
     }
 
     function updateSecondaryCharts() {
@@ -522,7 +525,6 @@ export default function() {
 
     function onNotificationClose(id) {
         model.notificationMessages.messages = model.notificationMessages.messages.filter(function(message) { return message.id !== id; });
-
         immutableModel = immutableModel.set('notificationMessages', immutable.fromJS(model.notificationMessages));
         render();
     }
@@ -546,7 +548,10 @@ export default function() {
             var formattedProducts = formatCoinbaseProducts(bitcoinProducts, model.sources.bitcoin, defaultPeriods, productPeriodOverrides);
             model.headMenu.products = model.overlay.products = model.headMenu.products.concat(formattedProducts);
 
-            immutableModel = immutableModel.set('headMenu', immutable.fromJS(model.headMenu));
+            immutableModel = immutableModel.setIn(['headMenu', 'products'], model.headMenu.products.concat(formattedProducts));
+            immutableModel = immutableModel.setIn(['overlay', 'products'], model.headMenu.products.concat(formattedProducts));
+
+            // immutableModel = immutableModel.set('headMenu', immutable.fromJS(model.headMenu));
         }
 
         render();
@@ -567,12 +572,14 @@ export default function() {
 
         if (!existsInHeadMenuProducts) {
             model.headMenu.products.push(product);
-            immutableModel = immutableModel.set('headMenu', immutable.fromJS(model.headMenu));
+            immutableModel = immutableModel.setIn(['headMenu', 'products'], model.headMenu.products);
+            // immutableModel = immutableModel.set('headMenu', immutable.fromJS(model.headMenu));
         }
 
         if (!existsInOverlayProducts) {
             model.overlay.products.push(product);
-            immutableModel = immutableModel.set('overlay', immutable.fromJS(model.overlay));
+            immutableModel = immutableModel.setIn(['overlay', 'products'], model.overlay.products);
+            // immutableModel = immutableModel.set('overlay', immutable.fromJS(model.overlay));
         }
 
         changeProduct(product);
@@ -613,7 +620,8 @@ export default function() {
             indicator.isSelected = x.some(function(indicatorValueStringToShow) { return indicatorValueStringToShow === indicator.valueString; });
         });
 
-        immutableModel = immutableModel.set('selectors', immutable.fromJS(model.selectors));
+        immutableModel = immutableModel.setIn(['selectors', 'indicatorSelector', 'options'], model.selectors.indicatorSelector.options);
+        // immutableModel = immutableModel.set('selectors', immutable.fromJS(model.selectors));
 
         updatePrimaryChartIndicators();
         if (!firstRender) {
