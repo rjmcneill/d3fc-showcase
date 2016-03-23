@@ -1,6 +1,7 @@
 /*global window */
 import d3 from 'd3';
 import fc from 'd3fc';
+import immutable from 'immutable';
 import chart from './chart/chart';
 import menu from './menu/menu';
 import util from './util/util';
@@ -84,6 +85,9 @@ export default function() {
 
     var model = initialiseModel();
 
+    var immutableModel = immutable.fromJS(model);
+    var previousImmutableModel;
+
     var _dataInterface = initialiseDataInterface();
 
     var externalHistoricFeedErrorCallback;
@@ -107,54 +111,106 @@ export default function() {
     var proportionOfDataToDisplayByDefault = 0.2;
 
     var firstRender = true;
+
     function renderInternal() {
         if (firstRender) {
-            firstRender = false;
+            previousImmutableModel = immutableModel;
         }
+
         if (layoutRedrawnInNextRender) {
             containers.suspendLayout(false);
         }
 
-        containers.primary.datum(model.primaryChart)
-            .call(charts.primary);
+        if (firstRender || previousImmutableModel !== immutableModel) {
+            var legendChanged = previousImmutableModel.get('legend') !== immutableModel.get('legend');
+            var primaryChanged = previousImmutableModel.get('primaryChart') !== immutableModel.get('primaryChart');
+            var secondaryChanged = previousImmutableModel.get('secondaryChart') !== immutableModel.get('secondaryChart');
+            var xAxisChanged = previousImmutableModel.get('xAxis') !== immutableModel.get('xAxis');
+            var navChanged = previousImmutableModel.get('nav') !== immutableModel.get('nav');
+            var navResetChanged = previousImmutableModel.get('navReset') !== immutableModel.get('navReset');
+            var headMenuChanged = previousImmutableModel.get('headMenu') !== immutableModel.get('headMenu');
+            var selectorsChanged = previousImmutableModel.get('selectors') !== immutableModel.get('selectors');
+            var notificationsChanged = previousImmutableModel.get('notificationMessages') !== immutableModel.get('notificationMessages');
+            var overlayChanged = previousImmutableModel.get('overlay') !== immutableModel.get('overlay');
 
-        containers.legend.datum(model.legend)
-            .call(charts.legend);
+            if (firstRender || primaryChanged) {
+                // console.log('primaryChanged');
+                containers.primary.datum(model.primaryChart)
+                    .call(charts.primary);
+            }
 
-        containers.secondaries.datum(model.secondaryChart)
-            // TODO: Add component: group of secondary charts.
-            // Then also move method layout.getSecondaryContainer into the group.
-            .filter(function(d, i) { return i < charts.secondaries.length; })
-            .each(function(d, i) {
-                d3.select(this)
-                    .attr('class', 'secondary-container secondary-' + charts.secondaries[i].valueString)
-                    .call(charts.secondaries[i].option);
-            });
+            if (firstRender || legendChanged) {
+                // console.log('legendChanged');
+                // containers.legend.datum(model.legend)
+                containers.legend.datum(immutableModel.get('legend').toJS())
+                    .call(charts.legend);
+            }
 
-        containers.xAxis.datum(model.xAxis)
-            .call(charts.xAxis);
+            if (firstRender || secondaryChanged) {
+                // console.log('secondaryChanged');
+                containers.secondaries.datum(model.secondaryChart)
+                    // TODO: Add component: group of secondary charts.
+                    // Then also move method layout.getSecondaryContainer into the group.
+                    .filter(function(d, i) { return i < charts.secondaries.length; })
+                    .each(function(d, i) {
+                        d3.select(this)
+                            .attr('class', 'secondary-container secondary-' + charts.secondaries[i].valueString)
+                            .call(charts.secondaries[i].option);
+                    });
+            }
 
-        containers.navbar.datum(model.nav)
-            .call(charts.navbar);
+            if (firstRender || xAxisChanged) {
+                // console.log('xAxisChanged');
+                containers.xAxis.datum(model.xAxis)
+                    .call(charts.xAxis);
+            }
 
-        containers.app.select('#navbar-reset')
-            .datum(model.navReset)
-            .call(navReset);
+            if (firstRender || navChanged) {
+                // console.log('navChanged');
+                containers.navbar.datum(model.nav)
+                    .call(charts.navbar);
+            }
 
-        containers.app.select('.head-menu')
-            .datum(model.headMenu)
-            .call(headMenu);
+            if (firstRender || navResetChanged) {
+                // console.log('navResetChanged');
+                containers.app.select('#navbar-reset')
+                    .datum(model.navReset)
+                    .call(navReset);
+            }
 
-        containers.app.selectAll('.selectors')
-            .datum(model.selectors)
-            .call(selectors);
+            if (firstRender || headMenuChanged) {
+                // console.log('headMenuChanged');
+                containers.app.select('.head-menu')
+                    .datum(model.headMenu)
+                    .call(headMenu);
+            }
 
-        containers.app.select('#notifications')
-            .datum(model.notificationMessages)
-            .call(toastNotifications);
+            if (firstRender || selectorsChanged) {
+                // console.log('selectorsChanged');
+                containers.app.selectAll('.selectors')
+                    .datum(model.selectors)
+                    .call(selectors);
+            }
 
-        containers.overlay.datum(model.overlay)
-            .call(overlay);
+            if (firstRender || notificationsChanged) {
+                // console.log('notificationsChanged');
+                containers.app.select('#notifications')
+                    .datum(model.notificationMessages)
+                    .call(toastNotifications);
+            }
+
+            if (firstRender || overlayChanged) {
+                // console.log('overlayChanged');
+                containers.overlay.datum(model.overlay)
+                    .call(overlay);
+            }
+
+            previousImmutableModel = immutableModel;
+        }
+
+        if (firstRender) {
+            firstRender = false;
+        }
 
         if (layoutRedrawnInNextRender) {
             containers.suspendLayout(true);
@@ -180,6 +236,7 @@ export default function() {
 
     function addNotification(message) {
         model.notificationMessages.messages.unshift(messageModel(message));
+        immutableModel = immutableModel.set('notificationMessages', immutable.fromJS(model.notificationMessages));
     }
 
     function onViewChange(domain) {
@@ -196,6 +253,16 @@ export default function() {
         model.secondaryChart.trackingLatest = trackingLatest;
         model.nav.trackingLatest = trackingLatest;
         model.navReset.trackingLatest = trackingLatest;
+
+        immutableModel = immutableModel.set('primaryChart', immutable.fromJS(model.primaryChart));
+        immutableModel = immutableModel.set('secondaryChart', immutable.fromJS(model.secondaryChart));
+        immutableModel = immutableModel.set('nav', immutable.fromJS(model.nav));
+        immutableModel = immutableModel.set('xAxis', immutable.fromJS(model.xAxis));
+
+        // Only update navReset model if needed
+        if (immutableModel.get('navReset').toJS().trackingLatest !== trackingLatest) {
+            immutableModel = immutableModel.set('navReset', immutable.fromJS(model.navReset));
+        }
         render();
     }
 
@@ -213,6 +280,8 @@ export default function() {
 
     function onCrosshairChange(dataPoint) {
         model.legend.data = dataPoint;
+        immutableModel = immutableModel.set('legend', immutable.fromJS(model.legend));
+        immutableModel = immutableModel.set('primaryChart', immutable.fromJS(model.primaryChart));
         render();
     }
 
@@ -261,6 +330,10 @@ export default function() {
         model.primaryChart.data = data;
         model.secondaryChart.data = data;
         model.nav.data = data;
+
+        immutableModel = immutableModel.set('primaryChart', immutable.fromJS(model.primaryChart));
+        immutableModel = immutableModel.set('secondaryChart', immutable.fromJS(model.secondaryChart));
+        immutableModel = immutableModel.set('nav', immutable.fromJS(model.nav));
     }
 
     function updateDiscontinuityProvider(productSource) {
@@ -270,6 +343,11 @@ export default function() {
         model.nav.discontinuityProvider = discontinuityProvider;
         model.primaryChart.discontinuityProvider = discontinuityProvider;
         model.secondaryChart.discontinuityProvider = discontinuityProvider;
+
+        immutableModel = immutableModel.set('xAxis', immutable.fromJS(model.xAxis));
+        immutableModel = immutableModel.set('nav', immutable.fromJS(model.nav));
+        immutableModel = immutableModel.set('primaryChart', immutable.fromJS(model.primaryChart));
+        immutableModel = immutableModel.set('secondaryChart', immutable.fromJS(model.secondaryChart));
     }
 
     function updateModelSelectedProduct(product) {
@@ -279,6 +357,10 @@ export default function() {
         model.legend.product = product;
         model.overlay.selectedProduct = product;
 
+        immutableModel = immutableModel.set('headMenu', immutable.fromJS(model.headMenu));
+        immutableModel = immutableModel.set('legend', immutable.fromJS(model.legend));
+        immutableModel = immutableModel.set('overlay', immutable.fromJS(model.overlay));
+
         updateDiscontinuityProvider(product.source);
     }
 
@@ -286,6 +368,10 @@ export default function() {
         model.headMenu.selectedPeriod = period;
         model.xAxis.period = period;
         model.legend.period = period;
+
+        immutableModel = immutableModel.set('headMenu', immutable.fromJS(model.headMenu));
+        immutableModel = immutableModel.set('xAxis', immutable.fromJS(model.xAxis));
+        immutableModel = immutableModel.set('legend', immutable.fromJS(model.legend));
     }
 
     function changeProduct(product) {
@@ -406,6 +492,9 @@ export default function() {
             });
 
         model.overlay.primaryIndicators = model.primaryChart.indicators;
+
+        immutableModel = immutableModel.set('primaryChart', immutable.fromJS(model.primaryChart));
+        immutableModel = immutableModel.set('selectors', immutable.fromJS(model.selectors));
     }
 
     function updateSecondaryChartModels() {
@@ -419,6 +508,9 @@ export default function() {
         });
 
         model.overlay.secondaryIndicators = charts.secondaries;
+
+        immutableModel = immutableModel.set('secondaryChart', immutable.fromJS(model.secondaryChart));
+        immutableModel = immutableModel.set('overlay', immutable.fromJS(model.overlay));
     }
 
     function updateSecondaryCharts() {
@@ -440,6 +532,8 @@ export default function() {
 
     function onNotificationClose(id) {
         model.notificationMessages.messages = model.notificationMessages.messages.filter(function(message) { return message.id !== id; });
+
+        immutableModel = immutableModel.set('notificationMessages', immutable.fromJS(model.notificationMessages));
         render();
     }
 
@@ -453,12 +547,16 @@ export default function() {
             var statusText = error.statusText || 'Unknown reason.';
             var message = 'Error retrieving Coinbase products: ' + statusText;
             model.notificationMessages.messages.unshift(messageModel(message));
+
+            immutableModel = immutableModel.set('notificationMessages', immutable.fromJS(model.notificationMessages));
         } else {
             var defaultPeriods = [model.periods.hour1, model.periods.day1];
             var productPeriodOverrides = d3.map();
             productPeriodOverrides.set('BTC-USD', [model.periods.minute1, model.periods.minute5, model.periods.hour1, model.periods.day1]);
             var formattedProducts = formatCoinbaseProducts(bitcoinProducts, model.sources.bitcoin, defaultPeriods, productPeriodOverrides);
             model.headMenu.products = model.overlay.products = model.headMenu.products.concat(formattedProducts);
+
+            immutableModel = immutableModel.set('headMenu', immutable.fromJS(model.headMenu));
         }
 
         render();
@@ -479,10 +577,12 @@ export default function() {
 
         if (!existsInHeadMenuProducts) {
             model.headMenu.products.push(product);
+            immutableModel = immutableModel.set('headMenu', immutable.fromJS(model.headMenu));
         }
 
         if (!existsInOverlayProducts) {
             model.overlay.products.push(product);
+            immutableModel = immutableModel.set('overlay', immutable.fromJS(model.overlay));
         }
 
         changeProduct(product);
@@ -522,6 +622,8 @@ export default function() {
         model.selectors.indicatorSelector.options.forEach(function(indicator) {
             indicator.isSelected = x.some(function(indicatorValueStringToShow) { return indicatorValueStringToShow === indicator.valueString; });
         });
+
+        immutableModel = immutableModel.set('selectors', immutable.fromJS(model.selectors));
 
         updatePrimaryChartIndicators();
         if (!firstRender) {

@@ -32,6 +32,7 @@ module.exports = function(grunt) {
                 'assets/js/d3fc.js',
                 'assets/js/jquery.js',
                 'assets/js/seedrandom.js',
+                'assets/js/immutable.js',
                 'assets/js/bootstrap.js'
             ],
             vendorJsFiles: [
@@ -42,6 +43,7 @@ module.exports = function(grunt) {
                 'node_modules/d3fc/dist/d3fc.min.js',
                 'node_modules/jquery/dist/jquery.min.js',
                 'node_modules/seedrandom/seedrandom.min.js',
+                'node_modules/immutable/dist/immutable.min.js',
                 'node_modules/bootstrap/dist/js/bootstrap.min.js'
             ],
             coverageDir: 'coverage'
@@ -121,6 +123,12 @@ module.exports = function(grunt) {
                 {
                     cwd: 'node_modules/seedrandom',
                     src: ['seedrandom.js'],
+                    dest: 'dist/assets/js',
+                    expand: true
+                },
+                {
+                    cwd: 'node_modules/immutable/dist',
+                    src: ['immutable.js'],
                     dest: 'dist/assets/js',
                     expand: true
                 }]
@@ -270,7 +278,8 @@ module.exports = function(grunt) {
                 globals: {
                     d3: 'd3',
                     d3fc: 'fc',
-                    jquery: '$'
+                    jquery: '$',
+                    immutable: 'Immutable'
                 }
             },
             module: {
