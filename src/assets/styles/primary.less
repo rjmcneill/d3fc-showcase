@@ -2,9 +2,11 @@
   path.line {
     stroke: @series-colour;
     stroke-width: @stroke-width;
+    shape-rendering: auto;
 
     &.movingAverage {
       stroke: @moving-average-colour;
+      shape-rendering: auto;
     }
   }
   
@@ -23,11 +25,13 @@
   .upper > path.line {
     stroke: @bollinger-upper-colour;
     stroke-width: @stroke-width;
+    shape-rendering: auto;
   }
 
   .lower > path.line {
     stroke: @bollinger-lower-colour;
     stroke-width: @stroke-width;
+    shape-rendering: auto;
   }
 
   .area > path.area {
@@ -37,15 +41,18 @@
   .average > path.line {
     stroke: @bollinger-average-colour;
     stroke-dasharray: 5;
+    shape-rendering: auto;
   }
 
   .area {
     fill: @area-fill;
+    shape-rendering: auto;
   }
 
   .point {
     stroke: @series-colour;
     fill: @series-colour;
+    shape-rendering: auto;
   }
 
   .gridline {
@@ -70,6 +77,7 @@
       fill: @crosshair-circle-colour;
       fill-opacity: @crosshair-circle-opacity;
       stroke: darken(@crosshair-circle-colour, 20%);
+      shape-rendering: auto;
     }
     .annotation > line {
       stroke: @crosshair-line-colour;
