@@ -134,21 +134,18 @@ export default function() {
             var overlayChanged = previousImmutableModel.get('overlay') !== immutableModel.get('overlay');
 
             if (firstRender || primaryChanged) {
-                // console.log('primaryChanged');
                 containers.primary.datum(model.primaryChart)
                     .call(charts.primary);
             }
 
             if (firstRender || legendChanged) {
-                // console.log('legendChanged');
                 // containers.legend.datum(model.legend)
                 containers.legend.datum(immutableModel.get('legend').toJS())
                     .call(charts.legend);
             }
 
             if (firstRender || secondaryChanged) {
-                // console.log('secondaryChanged');
-                containers.secondaries.datum(model.secondaryChart)
+                containers.secondaries.datum(immutableModel.get('secondaryChart').toJS())
                     // TODO: Add component: group of secondary charts.
                     // Then also move method layout.getSecondaryContainer into the group.
                     .filter(function(d, i) { return i < charts.secondaries.length; })
@@ -160,48 +157,41 @@ export default function() {
             }
 
             if (firstRender || xAxisChanged) {
-                // console.log('xAxisChanged');
-                containers.xAxis.datum(model.xAxis)
+                containers.xAxis.datum(immutableModel.get('xAxis').toJS())
                     .call(charts.xAxis);
             }
 
             if (firstRender || navChanged) {
-                // console.log('navChanged');
-                containers.navbar.datum(model.nav)
+                containers.navbar.datum(immutableModel.get('nav').toJS())
                     .call(charts.navbar);
             }
 
             if (firstRender || navResetChanged) {
-                // console.log('navResetChanged');
                 containers.app.select('#navbar-reset')
-                    .datum(model.navReset)
+                    .datum(immutableModel.get('navReset').toJS())
                     .call(navReset);
             }
 
             if (firstRender || headMenuChanged) {
-                // console.log('headMenuChanged');
                 containers.app.select('.head-menu')
                     .datum(model.headMenu)
                     .call(headMenu);
             }
 
             if (firstRender || selectorsChanged) {
-                // console.log('selectorsChanged');
                 containers.app.selectAll('.selectors')
                     .datum(model.selectors)
                     .call(selectors);
             }
 
             if (firstRender || notificationsChanged) {
-                // console.log('notificationsChanged');
                 containers.app.select('#notifications')
-                    .datum(model.notificationMessages)
+                    .datum(immutableModel.get('notificationMessages').toJS())
                     .call(toastNotifications);
             }
 
             if (firstRender || overlayChanged) {
-                // console.log('overlayChanged');
-                containers.overlay.datum(model.overlay)
+                containers.overlay.datum(immutableModel.get('overlay').toJS())
                     .call(overlay);
             }
 
