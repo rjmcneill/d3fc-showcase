@@ -621,7 +621,6 @@ export default function() {
         });
 
         immutableModel = immutableModel.setIn(['selectors', 'indicatorSelector', 'options'], model.selectors.indicatorSelector.options);
-        // immutableModel = immutableModel.set('selectors', immutable.fromJS(model.selectors));
 
         updatePrimaryChartIndicators();
         if (!firstRender) {
@@ -682,6 +681,7 @@ export default function() {
         if (fetchCoinbaseProducts) {
             getCoinbaseProducts(addCoinbaseProducts);
         } else if (model.sources.bitcoin) {
+            immutableModel = immutableModel.delete(['sources', 'bitcoin']);
             delete model.sources.bitcoin;
         }
     };
