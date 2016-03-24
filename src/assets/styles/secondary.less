@@ -23,49 +23,48 @@
         display: none;
       }
     }
-  }
 
-  .rsi {
-    stroke: @rsi-line-colour;
-    stroke-width: @stroke-width;
-    shape-rendering: auto;
-
-    .annotation line {
-      shape-rendering: crispEdges;
+    .indicator {
+      stroke: @rsi-line-colour;
+      stroke-width: @stroke-width;
+      shape-rendering: auto;
     }
   }
 
-  .macd-divergence {
+  &.secondary-macd {
+    .macd-divergence {
+      .bar {
+        stroke: @primary-blue;
+        fill: @secondary-grey;
+      }
+    }
+
+    .macd-signal {
+      .line {
+        stroke: @macd-signal-line-colour;
+        stroke-width: @stroke-width;
+        shape-rendering: auto;
+      }
+    }
+
+    .macd {
+      .line {
+        stroke: @macd-line-colour;
+        stroke-width: @stroke-width;
+        shape-rendering: auto;
+      }
+    }
+    .zero {
+      .annotation line {
+        visibility: hidden;
+      }
+    }
+  }
+
+  &.secondary-volume {
     .bar {
       stroke: @primary-blue;
       fill: @secondary-grey;
     }
-  }
-
-  .macd-signal {
-    .line {
-      stroke: @macd-signal-line-colour;
-      stroke-width: @stroke-width;
-      shape-rendering: auto;
-    }
-  }
-
-  .macd {
-    .line {
-      stroke: @macd-line-colour;
-      stroke-width: @stroke-width;
-      shape-rendering: auto;
-    }
-  }
-
-  .zero {
-    .annotation line {
-      visibility: hidden;
-    }
-  }
-
-  .bar {
-    stroke: @primary-blue;
-    fill: @secondary-grey;
   }
 }
