@@ -106,22 +106,38 @@ export default function() {
         .series([brushMask, brushLine])
         .xScale(xScale)
         .yScale(yScale);
-    function setBrushExtentToMinPeriods(brushExtent, originalBrushExtent, minimumPeriodMilliseconds) {
+
+    function setBrushExtentToMinPeriods(brushExtent, originalBrushExtent, minimumPeriodMilliseconds, discontinuityProvider, xExtent) {
+
         var leftHandleMoved = brushExtent[0][0].getTime() !== originalBrushExtent[0].getTime();
         var rightHandleMoved = brushExtent[1][0].getTime() !== originalBrushExtent[1].getTime();
+        var leftHandle;
+        var rightHandle;
 
         if (leftHandleMoved && !rightHandleMoved) {
-            return [new Date(brushExtent[1][0].getTime() - minimumPeriodMilliseconds),
-                brushExtent[1][0]];
+            leftHandle = discontinuityProvider.offset(brushExtent[1][0], -minimumPeriodMilliseconds);
+            rightHandle = brushExtent[1][0];
         } else if (rightHandleMoved && !leftHandleMoved) {
-            return [brushExtent[0][0],
-                new Date(brushExtent[0][0].getTime() + minimumPeriodMilliseconds)];
+            leftHandle = brushExtent[0][0];
+            rightHandle = discontinuityProvider.offset(brushExtent[0][0], minimumPeriodMilliseconds);
         } else {
-            var centrePoint = (brushExtent[0][0].getTime() + brushExtent[1][0].getTime()) / 2;
-
-            return [new Date(centrePoint - minimumPeriodMilliseconds / 2),
-                new Date(centrePoint + minimumPeriodMilliseconds / 2)];
+            var timeDifference = discontinuityProvider.distance(brushExtent[0][0], brushExtent[1][0]);
+            var centrePoint = discontinuityProvider.offset(brushExtent[0][0], timeDifference / 2);
+            leftHandle = discontinuityProvider.offset(centrePoint, -(minimumPeriodMilliseconds / 2));
+            rightHandle = discontinuityProvider.offset(centrePoint, (minimumPeriodMilliseconds / 2));
         }
+
+        // Ensure handles are within extents
+        if (leftHandle < xExtent[0]) {
+            leftHandle = xExtent[0];
+            rightHandle = discontinuityProvider.offset(leftHandle, minimumPeriodMilliseconds);
+        }
+        if (rightHandle > xExtent[1]) {
+            rightHandle = xExtent[1];
+            leftHandle = discontinuityProvider.offset(rightHandle, -minimumPeriodMilliseconds);
+        }
+
+        return [leftHandle, rightHandle];
     }
 
     function setHide(selection, brushHide) {
@@ -188,7 +204,7 @@ export default function() {
 
         var modelMinimumMilliseconds = model.period.seconds *
             model.minimumVisiblePeriods * 1000;
-        var xExtentMilliseconds = util.domain.domainMilliseconds(xExtent);
+        var xExtentMilliseconds = util.domain.domainMilliseconds(xExtent, model.discontinuityProvider);
 
         var minimumPeriodMilliseconds = xExtentMilliseconds < modelMinimumMilliseconds ?
             xExtentMilliseconds : modelMinimumMilliseconds;
@@ -208,8 +224,9 @@ export default function() {
         })
         .on('brushend', function() {
             var brushExtentIsEmpty = xEmpty(brush);
-            var minimumBrush;
-            var brushExtentDelta = brush.extent()[1][0].getTime() - brush.extent()[0][0].getTime();
+
+            var brushExtentDelta = model.discontinuityProvider.distance(brush.extent()[0][0], brush.extent()[1][0]);
+
             setHide(selection, false);
 
             if (brushExtentIsEmpty) {
@@ -219,18 +236,12 @@ export default function() {
                     model.data,
                     brush.extent()[0][0]));
             } else if (brushExtentDelta < minimumPeriodMilliseconds) {
-                minimumBrush = setBrushExtentToMinPeriods(
+                dispatch[event.viewChange](setBrushExtentToMinPeriods(
                     brush.extent(),
                     originalExtent,
-                    minimumPeriodMilliseconds);
-
-                var centreDate = new Date((minimumBrush[1].getTime() + minimumBrush[0].getTime()) / 2);
-
-                dispatch[event.viewChange](util.domain.centerOnDate(
+                    minimumPeriodMilliseconds,
                     model.discontinuityProvider,
-                    minimumBrush,
-                    model.data,
-                    centreDate));
+                    xExtent));
             }
         });
 

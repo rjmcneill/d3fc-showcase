@@ -2,9 +2,9 @@ import d3 from 'd3';
 import fc from 'd3fc';
 import util from '../util';
 
-export default function(discontinuityProvider, domain, data, minimumVisiblePeriods, selectedPeriod, desiredRatio) {
+export default function(discontinuityProvider, domain, data, minimumVisiblePeriods, selectedPeriod, ratio) {
     if (arguments.length < 6) {
-        desiredRatio = 1;
+        ratio = 1;
     }
     var dataExtent = fc.util.extent()
         .fields('date')(data);
@@ -13,16 +13,16 @@ export default function(discontinuityProvider, domain, data, minimumVisiblePerio
         .fields(fc.util.fn.identity)(domain);
 
     var dataTimeExtent = discontinuityProvider.distance(dataExtent[0], dataExtent[1]);
-    var scaledDomainTimeDifference = desiredRatio * discontinuityProvider.distance(domainExtent[0], domainExtent[1]);
+    var scaledDomainTimeDifference = ratio * discontinuityProvider.distance(domainExtent[0], domainExtent[1]);
 
     var scaledLiveDataDomain = scaledDomainTimeDifference < dataTimeExtent ?
-      [discontinuityProvider.offset(dataExtent[1], -scaledDomainTimeDifference), dataExtent[1]] : dataExtent;
+        [discontinuityProvider.offset(dataExtent[1], -scaledDomainTimeDifference), dataExtent[1]] : dataExtent;
     var minimumPeriodMilliseconds = minimumVisiblePeriods * selectedPeriod * 1000;
 
-    if (scaledLiveDataDomain[1].getTime() - scaledLiveDataDomain[0].getTime() < minimumPeriodMilliseconds) {
-        var xExtentMilliseconds = util.domain.domainMilliseconds(dataExtent);
+    if (discontinuityProvider.distance(scaledLiveDataDomain[0], scaledLiveDataDomain[1]) < minimumPeriodMilliseconds) {
+        var xExtentMilliseconds = util.domain.domainMilliseconds(dataExtent, discontinuityProvider);
         minimumPeriodMilliseconds = xExtentMilliseconds < minimumPeriodMilliseconds ? xExtentMilliseconds : minimumPeriodMilliseconds;
-        var lowerDate = new Date(scaledLiveDataDomain[1].getTime() - minimumPeriodMilliseconds);
+        var lowerDate = discontinuityProvider.offset(scaledLiveDataDomain[1], -minimumPeriodMilliseconds);
         scaledLiveDataDomain = [lowerDate, scaledLiveDataDomain[1]];
     }
 

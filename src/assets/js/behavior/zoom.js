@@ -42,20 +42,17 @@ export default function(containerWidth) {
     }
 
     function zoom(selection) {
+        var model = selection.datum();
 
         var xExtent = fc.util.extent()
-            .fields('date')(selection.datum().data);
+            .fields('date')(model.data);
 
         var min = scale(xExtent[0]);
         var max = scale(xExtent[1]);
         var zoomPixelExtent = [min, max - containerWidth];
 
-        var modelMinimumMilliseconds = selection.datum().period.seconds *
-            selection.datum().minimumVisiblePeriods * 1000;
-        // var xExtentMilliseconds = util.domain.domainMilliseconds(xExtent);
-
-        // var minimumPeriodMilliseconds = xExtentMilliseconds < modelMinimumMilliseconds ?
-        //     xExtentMilliseconds : modelMinimumMilliseconds;
+        var modelMinimumMilliseconds = model.period.seconds *
+            model.minimumVisiblePeriods * 1000;
 
         zoomBehavior.x(scale)
           .on('zoom', function() {
@@ -76,16 +73,16 @@ export default function(containerWidth) {
                       domain = xExtent;
                   } else if (zoomed && trackingLatest) {
                       domain = util.domain.moveToLatest(
-                          selection.datum().discontinuityProvider,
+                          model.discontinuityProvider,
                           domain,
-                          selection.datum().data,
-                          selection.datum().minimumVisiblePeriods,
-                          selection.datum().period.seconds);
+                          model.data,
+                          model.minimumVisiblePeriods,
+                          model.period.seconds);
                   }
 
-                  domain = clampDomain(domain, selection.datum().data, xExtent);
+                  domain = clampDomain(domain, model.data, xExtent);
 
-                  if (util.domain.domainMilliseconds(domain) >= modelMinimumMilliseconds) {
+                  if (model.discontinuityProvider.distance(domain[0], domain[1]) >= modelMinimumMilliseconds) {
                       dispatch.zoom(domain);
                   } else {
                       // Ensure the user can't zoom-in infinitely, causing the chart to fail to render
