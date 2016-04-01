@@ -204,11 +204,15 @@ export default function() {
         var data = model.charts.primary.data;
         var dataDomain = fc.util.extent()
             .fields('date')(data);
+
         var navTimeDomain = util.domain.moveToLatest(
             model.charts.primary.discontinuityProvider,
             dataDomain,
             data,
+            model.minimumVisiblePeriods,
+            model.charts.primary.period.seconds,
             proportionOfDataToDisplayByDefault);
+
         onViewChange(navTimeDomain);
     }
 
@@ -255,6 +259,9 @@ export default function() {
         model.headMenu.selectedPeriod = period;
         model.charts.xAxis.period = period;
         model.charts.legend.period = period;
+        model.charts.nav.period = period;
+        model.charts.primary.period = period;
+        model.charts.secondary.period = period;
     }
 
     function changeProduct(product) {
@@ -283,7 +290,10 @@ export default function() {
                     var newDomain = util.domain.moveToLatest(
                         model.charts.primary.discontinuityProvider,
                         model.charts.primary.viewDomain,
-                        model.charts.primary.data);
+                        model.charts.primary.data,
+                        model.minimumVisiblePeriods,
+                        model.charts.primary.period.seconds);
+
                     onViewChange(newDomain);
                 }
             })

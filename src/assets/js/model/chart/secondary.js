@@ -1,4 +1,4 @@
-export default function(initialProduct, initialDiscontinuityProvider) {
+export default function(initialProduct, initialDiscontinuityProvider, initialPeriod, minimumVisiblePeriods) {
     return {
         data: [],
         visibleData: [],
@@ -6,6 +6,8 @@ export default function(initialProduct, initialDiscontinuityProvider) {
         trackingLatest: true,
         product: initialProduct,
         discontinuityProvider: initialDiscontinuityProvider,
-        indicators: []
+        indicators: [],
+        period: initialPeriod,
+        minimumVisiblePeriods: minimumVisiblePeriods
     };
 }

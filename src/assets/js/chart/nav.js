@@ -19,6 +19,8 @@ export default function() {
     var yExtentPadding = [0, 0.04];
     var numberOfSamples = 200;
 
+    var originalExtent;
+
     var dispatch = d3.dispatch(event.viewChange);
     var xScale = fc.scale.dateTime();
     var yScale = d3.scale.linear();
@@ -104,6 +106,23 @@ export default function() {
         .series([brushMask, brushLine])
         .xScale(xScale)
         .yScale(yScale);
+    function setBrushExtentToMinPeriods(brushExtent, originalBrushExtent, minimumPeriodMilliseconds) {
+        var leftHandleMoved = brushExtent[0][0].getTime() !== originalBrushExtent[0].getTime();
+        var rightHandleMoved = brushExtent[1][0].getTime() !== originalBrushExtent[1].getTime();
+
+        if (leftHandleMoved && !rightHandleMoved) {
+            return [new Date(brushExtent[1][0].getTime() - minimumPeriodMilliseconds),
+                brushExtent[1][0]];
+        } else if (rightHandleMoved && !leftHandleMoved) {
+            return [brushExtent[0][0],
+                new Date(brushExtent[0][0].getTime() + minimumPeriodMilliseconds)];
+        } else {
+            var centrePoint = (brushExtent[0][0].getTime() + brushExtent[1][0].getTime()) / 2;
+
+            return [new Date(centrePoint - minimumPeriodMilliseconds / 2),
+                new Date(centrePoint + minimumPeriodMilliseconds / 2)];
+        }
+    }
 
     function setHide(selection, brushHide) {
         selection.select('.plot-area')
@@ -164,7 +183,20 @@ export default function() {
         navChart.xDomain(fc.util.extent().fields('date')(sampledData))
             .yDomain(yExtent);
 
-        brush.on('brush', function() {
+        var xExtent = fc.util.extent()
+            .fields('date')(model.data);
+
+        var modelMinimumMilliseconds = model.period.seconds *
+            model.minimumVisiblePeriods * 1000;
+        var xExtentMilliseconds = util.domain.domainMilliseconds(xExtent);
+
+        var minimumPeriodMilliseconds = xExtentMilliseconds < modelMinimumMilliseconds ?
+            xExtentMilliseconds : modelMinimumMilliseconds;
+
+        brush.on('brushstart', function() {
+            originalExtent = [brush.extent()[0][0], brush.extent()[1][0]];
+        })
+        .on('brush', function() {
             var brushExtentIsEmpty = xEmpty(brush);
 
             // Hide the bar if the extent is empty
@@ -174,17 +206,33 @@ export default function() {
                 dispatch[event.viewChange](brush.extent());
             }
         })
-            .on('brushend', function() {
-                var brushExtentIsEmpty = xEmpty(brush);
-                setHide(selection, false);
-                if (brushExtentIsEmpty) {
-                    dispatch[event.viewChange](util.domain.centerOnDate(
-                        model.discontinuityProvider,
-                        viewScale.domain(),
-                        model.data,
-                        brush.extent()[0]));
-                }
-            });
+        .on('brushend', function() {
+            var brushExtentIsEmpty = xEmpty(brush);
+            var minimumBrush;
+            var brushExtentDelta = brush.extent()[1][0].getTime() - brush.extent()[0][0].getTime();
+            setHide(selection, false);
+
+            if (brushExtentIsEmpty) {
+                dispatch[event.viewChange](util.domain.centerOnDate(
+                    model.discontinuityProvider,
+                    originalExtent,
+                    model.data,
+                    brush.extent()[0][0]));
+            } else if (brushExtentDelta < minimumPeriodMilliseconds) {
+                minimumBrush = setBrushExtentToMinPeriods(
+                    brush.extent(),
+                    originalExtent,
+                    minimumPeriodMilliseconds);
+
+                var centreDate = new Date((minimumBrush[1].getTime() + minimumBrush[0].getTime()) / 2);
+
+                dispatch[event.viewChange](util.domain.centerOnDate(
+                    model.discontinuityProvider,
+                    minimumBrush,
+                    model.data,
+                    centreDate));
+            }
+        });
 
         navChart.plotArea(navMulti);
         selection.datum({data: sampledData}).call(navChart);

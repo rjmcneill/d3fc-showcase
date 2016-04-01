@@ -2,13 +2,14 @@ import candlestickSeries from '../../series/candlestick';
 import option from '../menu/option';
 import util from '../../util/util';
 
-export default function(initialProduct, initialDiscontinuityProvider) {
+export default function(initialProduct, initialDiscontinuityProvider, initialPeriod, minimumVisiblePeriods) {
     var model = {
         data: [],
         visibleData: [],
         trackingLatest: true,
         viewDomain: [],
         selectorsChanged: true,
+        minimumVisiblePeriods: minimumVisiblePeriods,
         discontinuityProvider: initialDiscontinuityProvider
     };
 
@@ -17,6 +18,15 @@ export default function(initialProduct, initialDiscontinuityProvider) {
         get: function() { return _product; },
         set: function(newValue) {
             _product = newValue;
+            model.selectorsChanged = true;
+        }
+    });
+
+    var _period = initialPeriod;
+    Object.defineProperty(model, 'period', {
+        get: function() { return _period; },
+        set: function(newValue) {
+            _period = newValue;
             model.selectorsChanged = true;
         }
     });

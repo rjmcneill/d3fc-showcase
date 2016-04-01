@@ -2,7 +2,7 @@ import d3 from 'd3';
 import fc from 'd3fc';
 import util from '../util/util';
 
-export default function(width) {
+export default function(containerWidth) {
 
     var dispatch = d3.dispatch('zoom');
 
@@ -12,6 +12,7 @@ export default function(width) {
     var allowPan = true;
     var allowZoom = true;
     var trackingLatest = true;
+    var minimumVisiblePeriods;
 
     function controlZoom(zoomExtent) {
         // If zooming, and about to pan off screen, do nothing
@@ -43,11 +44,18 @@ export default function(width) {
     function zoom(selection) {
 
         var xExtent = fc.util.extent()
-          .fields('date')(selection.datum().data);
+            .fields('date')(selection.datum().data);
 
         var min = scale(xExtent[0]);
         var max = scale(xExtent[1]);
-        var zoomPixelExtent = [min, max - width];
+        var zoomPixelExtent = [min, max - containerWidth];
+
+        var modelMinimumMilliseconds = selection.datum().period.seconds *
+            selection.datum().minimumVisiblePeriods * 1000;
+        // var xExtentMilliseconds = util.domain.domainMilliseconds(xExtent);
+
+        // var minimumPeriodMilliseconds = xExtentMilliseconds < modelMinimumMilliseconds ?
+        //     xExtentMilliseconds : modelMinimumMilliseconds;
 
         zoomBehavior.x(scale)
           .on('zoom', function() {
@@ -70,12 +78,14 @@ export default function(width) {
                       domain = util.domain.moveToLatest(
                           selection.datum().discontinuityProvider,
                           domain,
-                          selection.datum().data);
+                          selection.datum().data,
+                          selection.datum().minimumVisiblePeriods,
+                          selection.datum().period.seconds);
                   }
 
                   domain = clampDomain(domain, selection.datum().data, xExtent);
 
-                  if (domain[0].getTime() !== domain[1].getTime()) {
+                  if (util.domain.domainMilliseconds(domain) >= modelMinimumMilliseconds) {
                       dispatch.zoom(domain);
                   } else {
                       // Ensure the user can't zoom-in infinitely, causing the chart to fail to render
@@ -120,6 +130,14 @@ export default function(width) {
             return scale;
         }
         scale = x;
+        return zoom;
+    };
+
+    zoom.minimumVisiblePeriods = function(x) {
+        if (!arguments.length) {
+            return minimumVisiblePeriods;
+        }
+        minimumVisiblePeriods = x;
         return zoom;
     };
 

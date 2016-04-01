@@ -165,9 +165,9 @@ export default function() {
 
     function initialiseCharts() {
         var legend = model.chart.legend(products.generated, periods.day1);
-        var nav = model.chart.nav(products.generated.source.discontinuityProvider);
-        var primary = model.chart.primary(products.generated, products.generated.source.discontinuityProvider);
-        var secondary = model.chart.secondary(products.generated, products.generated.source.discontinuityProvider);
+        var nav = model.chart.nav(products.generated.source.discontinuityProvider, periods.day1, defaultMinimumVisiblePeriods);
+        var primary = model.chart.primary(products.generated, products.generated.source.discontinuityProvider, periods.day1, defaultMinimumVisiblePeriods);
+        var secondary = model.chart.secondary(products.generated, products.generated.source.discontinuityProvider, periods.day1, defaultMinimumVisiblePeriods);
         var xAxis = model.chart.xAxis(periods.day1, products.generated.source.discontinuityProvider);
 
         return model.chart.group(legend, nav, primary, secondary, xAxis);
@@ -176,12 +176,14 @@ export default function() {
     var periods = initialisePeriods();
     var sources = initialiseSources();
     var products = initialiseProducts();
+    var defaultMinimumVisiblePeriods = 5;
 
     return {
         data: [],
         periods: periods,
         sources: sources,
         selectors: initialiseSelectors(),
+        minimumVisiblePeriods: defaultMinimumVisiblePeriods,
         navReset: model.chart.navigationReset(),
         headMenu: model.menu.head([products.generated, products.quandl], products.generated, periods.day1),
         overlay: model.menu.overlay([products.generated, products.quandl], products.generated),

@@ -22,7 +22,8 @@ export default function() {
 
         chart.trackingLatest(model.trackingLatest)
             .xDomain(model.viewDomain)
-            .yDomain([0, 100]);
+            .yDomain([0, 100])
+            .minimumVisiblePeriods(model.minimumVisiblePeriods);
 
         selection.call(chart);
     }

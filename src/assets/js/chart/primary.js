@@ -217,6 +217,7 @@ export default function() {
         var zoom = zoomBehavior(zoomWidth)
           .scale(xScale)
           .trackingLatest(model.trackingLatest)
+          .minimumVisiblePeriods(model.minimumVisiblePeriods)
           .on('zoom', function(domain) {
               dispatch[event.viewChange](domain);
           });

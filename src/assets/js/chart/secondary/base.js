@@ -10,6 +10,7 @@ export default function() {
     var yScale = d3.scale.linear();
     var trackingLatest = true;
     var yAxisWidth = 60;
+    var minimumVisiblePeriods;
 
     var multi = fc.series.multi();
     var chart = fc.chart.cartesian(xScale, yScale)
@@ -22,6 +23,7 @@ export default function() {
             bottom: 0,
             right: yAxisWidth
         });
+
     var zoomWidth;
 
     function secondary(selection) {
@@ -62,6 +64,14 @@ export default function() {
 
     secondary.dimensionChanged = function(container) {
         zoomWidth = util.width(container.node()) - yAxisWidth;
+    };
+
+    secondary.minimumVisiblePeriods = function(x) {
+        if (!arguments.length) {
+            return minimumVisiblePeriods;
+        }
+        minimumVisiblePeriods = x;
+        return secondary;
     };
 
     return secondary;
