@@ -6,6 +6,7 @@ export default function(discontinuityProvider, domain, data, minimumVisiblePerio
     if (arguments.length < 6) {
         ratio = 1;
     }
+
     var dataExtent = fc.util.extent()
         .fields('date')(data);
 
