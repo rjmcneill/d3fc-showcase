@@ -75,13 +75,17 @@ export default function(width) {
 
                   domain = clampDomain(domain, selection.datum().data, xExtent);
 
+                  // Create a new copy of the scale with an updated domain to ensure below checks are valid
+                  var newScale = scale.copy()
+                      .domain(domain);
+
                   // Round upper domain to upper extent
-                  if (zoomed && scale(domain[1]) === width) {
+                  if (zoomed && newScale(domain[1]) === Math.round(newScale(xExtent[1]))) {
                       domain[1] = xExtent[1];
                   }
 
                   // Round lower domain to lower extent
-                  if (zoomed && scale(domain[0]) === 0) {
+                  if (zoomed && newScale(domain[0]) === Math.round(newScale(xExtent[0]))) {
                       domain[0] = xExtent[0];
                   }
 
