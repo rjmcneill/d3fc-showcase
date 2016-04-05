@@ -1,3 +1,4 @@
+import fc from 'd3fc';
 import makeDatum from '../helpers/makeDatum';
 import clampDomain from '../../src/assets/js/behavior/clampDomain';
 import skipWeekends from '../../src/assets/js/scale/discontinuity/skipWeekends';

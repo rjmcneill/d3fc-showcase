@@ -1,7 +1,7 @@
 import d3 from 'd3';
 import fc from 'd3fc';
 import util from '../util/util';
-import clampDomain from './clampDomain';
+import zoomUtils from './zoomUtils';
 
 export default function(width) {
 
@@ -14,18 +14,9 @@ export default function(width) {
     var allowZoom = true;
     var trackingLatest = true;
 
-    function controlZoom(zoomExtent) {
-        // If zooming, and about to pan off screen, do nothing
-        return (zoomExtent[0] > 0 && zoomExtent[1] < 0);
-    }
-
     function resetBehaviour() {
         zoomBehavior.translate([0, 0]);
         zoomBehavior.scale(1);
-    }
-
-    function clamp(value, min, max) {
-        return Math.min(Math.max(value, min), max);
     }
 
     function zoom(selection) {
@@ -42,9 +33,9 @@ export default function(width) {
               var t = d3.event.translate,
                   tx = t[0];
 
-              var maxDomainViewed = controlZoom(zoomPixelExtent);
+              var maxDomainViewed = zoomUtils.controlZoom(zoomPixelExtent);
 
-              tx = clamp(tx, -zoomPixelExtent[1], -zoomPixelExtent[0]);
+              tx = zoomUtils.clamp(tx, -zoomPixelExtent[1], -zoomPixelExtent[0]);
               zoomBehavior.translate([tx, 0]);
 
               var panned = (zoomBehavior.scale() === 1);
@@ -61,7 +52,7 @@ export default function(width) {
                           selection.datum().data);
                   }
 
-                  domain = clampDomain(scale, domain, selection.datum().data, xExtent);
+                  domain = zoomUtils.clampDomain(scale, domain, selection.datum().data, xExtent);
 
                   if (domain[0].getTime() !== domain[1].getTime()) {
                       dispatch.zoom(domain);
