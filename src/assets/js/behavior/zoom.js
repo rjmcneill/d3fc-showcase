@@ -1,6 +1,7 @@
 import d3 from 'd3';
 import fc from 'd3fc';
 import util from '../util/util';
+import clampDomain from './clampDomain';
 
 export default function(width) {
 
@@ -25,19 +26,6 @@ export default function(width) {
 
     function clamp(value, min, max) {
         return Math.min(Math.max(value, min), max);
-    }
-
-    function clampDomain(domain, data, totalXExtent) {
-        var clampedDomain = domain;
-
-        if (scale(data[0].date) > 0) {
-            clampedDomain[1] = scale.invert(scale(domain[1]) + scale(data[0].date));
-        }
-
-        clampedDomain[0] = d3.max([totalXExtent[0], clampedDomain[0]]);
-        clampedDomain[1] = d3.min([totalXExtent[1], clampedDomain[1]]);
-
-        return clampedDomain;
     }
 
     function zoom(selection) {
@@ -73,7 +61,7 @@ export default function(width) {
                           selection.datum().data);
                   }
 
-                  domain = clampDomain(domain, selection.datum().data, xExtent);
+                  domain = clampDomain(scale, domain, selection.datum().data, xExtent);
 
                   if (domain[0].getTime() !== domain[1].getTime()) {
                       dispatch.zoom(domain);
