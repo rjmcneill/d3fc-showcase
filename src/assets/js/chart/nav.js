@@ -2,7 +2,7 @@ import d3 from 'd3';
 import fc from 'd3fc';
 import util from '../util/util';
 import event from '../event';
-import zoomBehavior from '../behavior/zoom';
+import zoomBehavior from '../behavior/zoom/zoom';
 
 export default function() {
     var navHeight = 100; // Also maintain in variables.less

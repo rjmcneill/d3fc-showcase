@@ -1,9 +1,9 @@
 import clampDomain from './clampDomain';
-import controlZoom from './controlZoom';
 import clamp from './clamp';
+import calculateDomain from './calculateDomain';
 
 export default {
     clampDomain: clampDomain,
-    controlZoom: controlZoom,
-    clamp: clamp
+    clamp: clamp,
+    calculateDomain: calculateDomain
 };

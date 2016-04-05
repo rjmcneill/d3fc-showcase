@@ -4,7 +4,7 @@ import util from '../util/util';
 import event from '../event';
 import option from '../model/menu/option';
 import candlestick from '../series/candlestick';
-import zoomBehavior from '../behavior/zoom';
+import zoomBehavior from '../behavior/zoom/zoom';
 
 function calculateCloseAxisTagPath(width, height) {
     var h2 = height / 2;
