@@ -109,20 +109,20 @@ export default function() {
 
     function setBrushExtentToMinPeriods(brushExtent, originalBrushExtent, minimumPeriodMilliseconds, discontinuityProvider, xExtent) {
 
-        var leftHandleMoved = brushExtent[0][0].getTime() !== originalBrushExtent[0].getTime();
-        var rightHandleMoved = brushExtent[1][0].getTime() !== originalBrushExtent[1].getTime();
+        var leftHandleMoved = brushExtent[0].getTime() !== originalBrushExtent[0].getTime();
+        var rightHandleMoved = brushExtent[1].getTime() !== originalBrushExtent[1].getTime();
         var leftHandle;
         var rightHandle;
 
         if (leftHandleMoved && !rightHandleMoved) {
-            leftHandle = discontinuityProvider.offset(brushExtent[1][0], -minimumPeriodMilliseconds);
-            rightHandle = brushExtent[1][0];
+            leftHandle = discontinuityProvider.offset(brushExtent[1], -minimumPeriodMilliseconds);
+            rightHandle = brushExtent[1];
         } else if (rightHandleMoved && !leftHandleMoved) {
-            leftHandle = brushExtent[0][0];
-            rightHandle = discontinuityProvider.offset(brushExtent[0][0], minimumPeriodMilliseconds);
+            leftHandle = brushExtent[0];
+            rightHandle = discontinuityProvider.offset(brushExtent[0], minimumPeriodMilliseconds);
         } else {
-            var timeDifference = discontinuityProvider.distance(brushExtent[0][0], brushExtent[1][0]);
-            var centrePoint = discontinuityProvider.offset(brushExtent[0][0], timeDifference / 2);
+            var timeDifference = discontinuityProvider.distance(brushExtent[0], brushExtent[1]);
+            var centrePoint = discontinuityProvider.offset(brushExtent[0], timeDifference / 2);
             leftHandle = discontinuityProvider.offset(centrePoint, -(minimumPeriodMilliseconds / 2));
             rightHandle = discontinuityProvider.offset(centrePoint, (minimumPeriodMilliseconds / 2));
         }
@@ -210,7 +210,7 @@ export default function() {
             xExtentMilliseconds : modelMinimumMilliseconds;
 
         brush.on('brushstart', function() {
-            originalExtent = [brush.extent()[0][0], brush.extent()[1][0]];
+            originalExtent = brush.extent();
         })
         .on('brush', function() {
             var brushExtentIsEmpty = xEmpty(brush);
@@ -225,7 +225,7 @@ export default function() {
         .on('brushend', function() {
             var brushExtentIsEmpty = xEmpty(brush);
 
-            var brushExtentDelta = model.discontinuityProvider.distance(brush.extent()[0][0], brush.extent()[1][0]);
+            var brushExtentDelta = model.discontinuityProvider.distance(brush.extent()[0], brush.extent()[1]);
 
             setHide(selection, false);
 
@@ -234,7 +234,7 @@ export default function() {
                     model.discontinuityProvider,
                     originalExtent,
                     model.data,
-                    brush.extent()[0][0]));
+                    brush.extent()[0]));
             } else if (brushExtentDelta < minimumPeriodMilliseconds) {
                 dispatch[event.viewChange](setBrushExtentToMinPeriods(
                     brush.extent(),
@@ -258,10 +258,7 @@ export default function() {
             });
 
         selection.select('.plot-area')
-            .datum({
-                data: model.data,
-                discontinuityProvider: model.discontinuityProvider
-            })
+            .datum(model)
             .call(zoom);
     }
 

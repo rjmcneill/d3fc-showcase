@@ -130,14 +130,6 @@ export default function(containerWidth) {
         return zoom;
     };
 
-    zoom.minimumVisiblePeriods = function(x) {
-        if (!arguments.length) {
-            return minimumVisiblePeriods;
-        }
-        minimumVisiblePeriods = x;
-        return zoom;
-    };
-
     d3.rebind(zoom, dispatch, 'on');
 
     return zoom;

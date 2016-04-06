@@ -10,7 +10,6 @@ export default function() {
     var yScale = d3.scale.linear();
     var trackingLatest = true;
     var yAxisWidth = 60;
-    var minimumVisiblePeriods;
 
     var multi = fc.series.multi();
     var chart = fc.chart.cartesian(xScale, yScale)
@@ -42,10 +41,7 @@ export default function() {
                 });
 
             container.select('.plot-area-container')
-                .datum({
-                    data: model.data,
-                    discontinuityProvider: model.discontinuityProvider
-                })
+                .datum(model)
                 .call(zoom);
         });
     }
@@ -64,14 +60,6 @@ export default function() {
 
     secondary.dimensionChanged = function(container) {
         zoomWidth = util.width(container.node()) - yAxisWidth;
-    };
-
-    secondary.minimumVisiblePeriods = function(x) {
-        if (!arguments.length) {
-            return minimumVisiblePeriods;
-        }
-        minimumVisiblePeriods = x;
-        return secondary;
     };
 
     return secondary;

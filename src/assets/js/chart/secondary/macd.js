@@ -38,8 +38,7 @@ export default function() {
             .pad(0.08)(model.data.map(function(d) { return d.macd; }));
         chart.trackingLatest(model.trackingLatest)
             .xDomain(model.viewDomain)
-            .yDomain(paddedYExtent)
-            .minimumVisiblePeriods(model.minimumVisiblePeriods);
+            .yDomain(paddedYExtent);
 
         selection.call(chart);
     }
