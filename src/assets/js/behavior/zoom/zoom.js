@@ -38,7 +38,18 @@ export default function(width) {
                 var zoomed = (zoomBehavior.scale() !== 1);
 
                 if ((panned && allowPan) || (zoomed && allowZoom)) {
-                    var domain = zoomUtils.calculateDomain(scale, model.data, model.discontinuityProvider, xExtent, zoomed, trackingLatest);
+                    var domain = zoomUtils.calculateDomain(
+                        scale,
+                        model.data,
+                        model.discontinuityProvider,
+                        xExtent,
+                        zoomed,
+                        trackingLatest);
+
+                    // Avoid right handle moving in at left data extent
+                    if (scale(model.data[0].date) > 0) {
+                        domain[1] = scale.invert(scale(domain[1]) + scale(model.data[0].date));
+                    }
 
                     if (domain[0].getTime() !== domain[1].getTime()) {
                         dispatch.zoom(domain);

@@ -1,9 +1,9 @@
 import fc from 'd3fc';
 import makeDatum from '../helpers/makeDatum';
-import clampDomain from '../../src/assets/js/behavior/clampDomain';
+import clampDomain from '../../src/assets/js/behavior/zoom/clampDomain';
 import skipWeekends from '../../src/assets/js/scale/discontinuity/skipWeekends';
 
-describe('util/domain/trackingLatestData', function() {
+describe('behavior/zoom/clampDomain', function() {
 
     var monday = new Date(2015, 7, 17);
     var tuesday = new Date(2015, 7, 18);
