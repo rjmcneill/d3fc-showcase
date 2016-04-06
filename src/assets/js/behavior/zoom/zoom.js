@@ -49,6 +49,7 @@ export default function(width) {
                     // Avoid right handle moving in at left data extent
                     if (scale(model.data[0].date) > 0) {
                         domain[1] = scale.invert(scale(domain[1]) + scale(model.data[0].date));
+                        domain = zoomUtils.clampDomain(domain, xExtent);
                     }
 
                     if (domain[0].getTime() !== domain[1].getTime()) {

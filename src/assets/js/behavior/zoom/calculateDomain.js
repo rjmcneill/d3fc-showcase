@@ -11,5 +11,5 @@ export default function(scale, data, discontinuityProvider, xExtent, zoomed, tra
             data);
     }
 
-    return zoomUtils.clampDomain(scale, domain, data, xExtent);
+    return zoomUtils.clampDomain(domain, xExtent);
 }

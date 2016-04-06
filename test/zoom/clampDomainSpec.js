@@ -24,78 +24,35 @@ describe('behavior/zoom/clampDomain', function() {
     var xExtent = fc.util.extent()
         .fields('date')(data);
 
-    var xScale = fc.scale.dateTime()
-        .domain(xExtent);
-
-    it('should return the correct dates when the dates are within the domain with unity discontinuity', function() {
+    it('should return the correct dates when the dates are within the domain', function() {
         var domain = [wednesday, friday];
         var expected = [wednesday, friday];
 
-        expect(clampDomain(xScale, domain, data, xExtent).length).toEqual(domain.length);
-        expect(clampDomain(xScale, domain, data, xExtent)).toEqual(expected);
+        expect(clampDomain(domain, xExtent).length).toEqual(domain.length);
+        expect(clampDomain(domain, xExtent)).toEqual(expected);
     });
 
-    it('should return the correct dates when the lower date is within the domain with unity discontinuity', function() {
+    it('should return the correct dates when the lower date is within the domain', function() {
         var domain = [wednesday, sunday];
         var expected = [wednesday, saturday];
 
-        expect(clampDomain(xScale, domain, data, xExtent).length).toEqual(domain.length);
-        expect(clampDomain(xScale, domain, data, xExtent)).toEqual(expected);
+        expect(clampDomain(domain, xExtent).length).toEqual(domain.length);
+        expect(clampDomain(domain, xExtent)).toEqual(expected);
     });
 
-    it('should return the correct dates when the upper date is within the domain with unity discontinuity', function() {
+    it('should return the correct dates when the upper date is within the domain', function() {
         var domain = [monday, friday];
         var expected = [tuesday, friday];
 
-        expect(clampDomain(xScale, domain, data, xExtent).length).toEqual(domain.length);
-        expect(clampDomain(xScale, domain, data, xExtent)).toEqual(expected);
+        expect(clampDomain(domain, xExtent).length).toEqual(domain.length);
+        expect(clampDomain(domain, xExtent)).toEqual(expected);
     });
 
-    it('should return the correct dates when the neither date is within the domain with unity discontinuity', function() {
+    it('should return the correct dates when the neither date is within the domain', function() {
         var domain = [monday, sunday];
         var expected = [tuesday, saturday];
 
-        expect(clampDomain(xScale, domain, data, xExtent).length).toEqual(domain.length);
-        expect(clampDomain(xScale, domain, data, xExtent)).toEqual(expected);
-    });
-
-    it('should return the correct dates when the dates are within the domain with skip weekends discontinuity', function() {
-        var domain = [wednesday, friday];
-        var expected = [wednesday, friday];
-
-        xScale.discontinuityProvider(skipWeekends());
-
-        expect(clampDomain(xScale, domain, data, xExtent).length).toEqual(domain.length);
-        expect(clampDomain(xScale, domain, data, xExtent)).toEqual(expected);
-    });
-
-    it('should return the correct dates when the lower date is within the domain with skip weekends discontinuity', function() {
-        var domain = [wednesday, sunday];
-        var expected = [wednesday, saturday];
-
-        xScale.discontinuityProvider(skipWeekends());
-
-        expect(clampDomain(xScale, domain, data, xExtent).length).toEqual(domain.length);
-        expect(clampDomain(xScale, domain, data, xExtent)).toEqual(expected);
-    });
-
-    it('should return the correct dates when the upper date is within the domain with skip weekends discontinuity', function() {
-        var domain = [monday, friday];
-        var expected = [tuesday, friday];
-
-        xScale.discontinuityProvider(skipWeekends());
-
-        expect(clampDomain(xScale, domain, data, xExtent).length).toEqual(domain.length);
-        expect(clampDomain(xScale, domain, data, xExtent)).toEqual(expected);
-    });
-
-    it('should return the correct dates when the neither date is within the domain with skip weekends discontinuity', function() {
-        var domain = [monday, sunday];
-        var expected = [tuesday, saturday];
-
-        xScale.discontinuityProvider(skipWeekends());
-
-        expect(clampDomain(xScale, domain, data, xExtent).length).toEqual(domain.length);
-        expect(clampDomain(xScale, domain, data, xExtent)).toEqual(expected);
+        expect(clampDomain(domain, xExtent).length).toEqual(domain.length);
+        expect(clampDomain(domain, xExtent)).toEqual(expected);
     });
 });
