@@ -18,10 +18,11 @@ export default function() {
         .yOrient('right')
         .margin({
             top: 0,
-            left: 0,
+            left: 1,
             bottom: 0,
             right: yAxisWidth
         });
+
     var zoomWidth;
 
     function secondary(selection) {
