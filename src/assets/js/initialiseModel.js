@@ -2,8 +2,9 @@ import d3 from 'd3';
 import fc from 'd3fc';
 import model from './model/model';
 import chart from './chart/chart';
-import util from './util/util';
 import candlestickSeries from './series/candlestick';
+import option from './model/menu/option';
+import util from './util/util';
 import dataGeneratorAdaptor from './data/generator/historic/feedAdaptor';
 import coinbaseAdaptor from './data/coinbase/historic/feedAdaptor';
 import coinbaseHistoricErrorResponseFormatter from './data/coinbase/historic/errorResponseFormatter';
@@ -56,9 +57,6 @@ export default function() {
     }
 
     function initialiseSeriesSelector() {
-
-        var candlestick = candlestickSeries();
-        candlestick.id = util.uid();
         var candlestickOption = model.menu.option(
             'Candlestick',
             'candlestick',
@@ -166,8 +164,8 @@ export default function() {
     function initialiseCharts() {
         var legend = model.chart.legend(products.generated, periods.day1);
         var nav = model.chart.nav(products.generated.source.discontinuityProvider);
-        var primary = model.chart.primary(products.generated, products.generated.source.discontinuityProvider);
-        var secondary = model.chart.secondary(products.generated, products.generated.source.discontinuityProvider);
+        var primary = model.chart.primary(products.generated, products.generated.source.discontinuityProvider, initialPrimarySeries);
+        var secondary = model.chart.secondary(products.generated, products.generated.source.discontinuityProvider, initialPrimarySeries);
         var xAxis = model.chart.xAxis(periods.day1, products.generated.source.discontinuityProvider);
 
         return model.chart.group(legend, nav, primary, secondary, xAxis);
@@ -176,6 +174,11 @@ export default function() {
     var periods = initialisePeriods();
     var sources = initialiseSources();
     var products = initialiseProducts();
+
+    var candlestick = candlestickSeries();
+    candlestick.id = util.uid();
+    var initialPrimarySeries = option('Candlestick', 'candlestick', candlestick);
+    initialPrimarySeries.option.extentAccessor = ['high', 'low'];
 
     return {
         data: [],

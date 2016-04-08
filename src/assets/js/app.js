@@ -98,36 +98,8 @@ export default function() {
             containers.suspendLayout(false);
         }
 
-// <<<<<<< f6ed0687abe7bf90e3f6550847a24c929a081a26
         containers.chartsAndOverlay.datum(model.charts)
             .call(charts);
-// =======
-//         containers.primary.datum(model.primaryChart)
-//             .call(charts.primary);
-
-//         containers.legend.datum(model.legend)
-//             .call(charts.legend);
-
-//         containers.secondaries.datum(model.secondaryChart)
-//             // TODO: Add component: group of secondary charts.
-//             // Then also move method layout.getSecondaryContainer into the group.
-//             .filter(function(d, i) { return i < charts.secondaries.length; })
-//             .each(function(d, i) {
-//                 var option = charts.secondaries[i].option;
-
-//                 d3.select(this)
-//                     .attr('class', 'secondary-container secondary-' + charts.secondaries[i].valueString)
-//                     .call(option);
-
-//                 option.on(event.crosshairChange, onCrosshairChange);
-//             });
-
-//         containers.xAxis.datum(model.xAxis)
-//             .call(charts.xAxis);
-
-//         containers.navbar.datum(model.nav)
-//             .call(charts.navbar);
-// >>>>>>> Crosshairs added to secondaries
 
         containers.app.select('#navbar-reset')
             .datum(model.navReset)
@@ -208,7 +180,7 @@ export default function() {
     }
 
     function onCrosshairChange(dataPoint) {
-        model.legend.data = dataPoint;
+        model.charts.legend.data = dataPoint;
         model.charts.primary.currentCrosshairData = dataPoint;
         model.charts.secondary.currentCrosshairData = dataPoint;
         render();

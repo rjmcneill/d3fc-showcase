@@ -1,7 +1,7 @@
 import d3 from 'd3';
 import fc from 'd3fc';
 import event from '../event';
-import util from './util';
+import util from '../util/util';
 
 export default function() {
     var dispatch = d3.dispatch(event.crosshairChange);

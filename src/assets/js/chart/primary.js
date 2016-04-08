@@ -1,10 +1,12 @@
 import d3 from 'd3';
 import fc from 'd3fc';
 import util from '../util/util';
+import tool from '../tool/tool';
 import event from '../event';
 import option from '../model/menu/option';
 import candlestick from '../series/candlestick';
 import zoomBehavior from '../behavior/zoom';
+import crosshairDecorator from '../tool/decorator/crosshair/crosshairDecorator';
 
 function calculateCloseAxisTagPath(width, height) {
     var h2 = height / 2;
@@ -51,7 +53,7 @@ export default function() {
     var zoomWidth;
 
     var crosshairData = [];
-    var crosshair = util.crosshair()
+    var crosshair = tool.crosshair()
         .on(event.crosshairChange, dispatch.crosshairChange);
 
     var gridlines = fc.annotation.gridline()
@@ -129,19 +131,11 @@ export default function() {
 
     function bandCrosshair(data) {
         var width = currentSeries.option.width(data);
-
-        crosshair.decorate(function(selection) {
-            selection.classed('band', true);
-
-            selection.selectAll('.vertical > line')
-              .style('stroke-width', width);
-        });
+        crosshair.decorate(function(s) { crosshairDecorator.band(s, width); });
     }
 
-    function lineCrosshair(selection) {
-        selection.classed('band', false)
-            .selectAll('line')
-            .style('stroke-width', null);
+    function lineCrosshair() {
+        crosshair.decorate(function(s) { crosshairDecorator.line(s); });
     }
     function updateCrosshairDecorate(data) {
         if (currentSeries.valueString === 'candlestick' || currentSeries.valueString === 'ohlc') {

@@ -1,7 +1,7 @@
 import d3 from 'd3';
 import fc from 'd3fc';
 import event from '../../event';
-import util from '../../util/util';
+import tool from '../../tool/tool';
 import base from './base';
 
 export default function() {
@@ -11,7 +11,7 @@ export default function() {
     var tickValues = [renderer.lowerValue(), 50, renderer.upperValue()];
 
     var crosshairData = [];
-    var crosshair = util.crosshair()
+    var crosshair = tool.crosshair()
         .on(event.crosshairChange, dispatch.crosshairChange);
 
     var chart = base()

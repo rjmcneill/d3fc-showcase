@@ -1,8 +1,4 @@
-import candlestickSeries from '../../series/candlestick';
-import option from '../menu/option';
-import util from '../../util/util';
-
-export default function(initialProduct, initialDiscontinuityProvider) {
+export default function(initialProduct, initialDiscontinuityProvider, initialPrimarySeries) {
     var model = {
         data: [],
         visibleData: [],
@@ -22,14 +18,10 @@ export default function(initialProduct, initialDiscontinuityProvider) {
         }
     });
 
-    var candlestick = candlestickSeries();
-    candlestick.id = util.uid();
-    var _series = option('Candlestick', 'candlestick', candlestick);
-    _series.option.extentAccessor = ['high', 'low'];
     Object.defineProperty(model, 'series', {
-        get: function() { return _series; },
+        get: function() { return initialPrimarySeries; },
         set: function(newValue) {
-            _series = newValue;
+            initialPrimarySeries = newValue;
             model.selectorsChanged = true;
         }
     });

@@ -2,8 +2,10 @@ import d3 from 'd3';
 import fc from 'd3fc';
 import jquery from 'jquery';
 import util from '../../util/util';
+import tool from '../../tool/tool';
 import event from '../../event';
 import base from './base';
+import crosshairDecorator from '../../tool/decorator/crosshair/crosshairDecorator';
 
 export default function() {
     var dispatch = d3.dispatch(event.viewChange, event.crosshairChange);
@@ -14,7 +16,7 @@ export default function() {
     var algorithm = fc.indicator.algorithm.macd();
 
     var crosshairData = [];
-    var crosshair = util.crosshair()
+    var crosshair = tool.crosshair()
         .on(event.crosshairChange, dispatch.crosshairChange);
 
     var chart = base()
@@ -42,23 +44,9 @@ export default function() {
 
     function bandCrosshair(model) {
         var root = function(d) { return d.macd; };
-        var mapFunction = function(d, i) { return xScale(xValue(d, i)); };
-        var barWidth = renderer.barWidth();
-        var xValue = renderer.xValue();
         var yValue = function(d) { return root(d).macd; };
-        var y0Value = d3.functor(0);
-        var x0Value = d3.functor(0);
-        var xScale = renderer.xScale();
-
-        var filteredData = model.data.filter(fc.util.fn.defined(x0Value, y0Value, xValue, yValue));
-        var width = barWidth(filteredData.map(mapFunction));
-
-        crosshair.decorate(function(s) {
-            s.classed('band', true);
-
-            s.selectAll('.vertical > line')
-              .style('stroke-width', width);
-        });
+        var width = util.barWidth(renderer, model.data, yValue);
+        crosshair.decorate(function(s) { crosshairDecorator.band(s, width); });
     }
 
     var initialised = false;

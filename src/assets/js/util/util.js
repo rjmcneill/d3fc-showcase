@@ -4,7 +4,7 @@ import uid from './uid';
 import width from './width';
 import debounce from './debounce';
 import throttle from './throttle';
-import crosshair from './crosshair';
+import barWidth from './barWidth';
 
 export default {
     domain: domain,
@@ -13,5 +13,5 @@ export default {
     width: width,
     debounce: debounce,
     throttle: throttle,
-    crosshair: crosshair
+    barWidth: barWidth
 };

@@ -4,7 +4,7 @@ import event from '../event';
 
 export default function() {
     var charts = [];
-    var dispatch = d3.dispatch(event.viewChange);
+    var dispatch = d3.dispatch(event.viewChange, event.crosshairChange);
 
     function key(d) { return d.id; }
 
@@ -28,7 +28,8 @@ export default function() {
             secondaries.each(function(option) {
                 this.__secondaryChart__ = option;
 
-                option.on(event.viewChange, dispatch[event.viewChange]);
+                option.on(event.viewChange, dispatch[event.viewChange])
+                    .on(event.crosshairChange, dispatch[event.crosshairChange]);
 
                 d3.select(this)
                     .datum(model)
